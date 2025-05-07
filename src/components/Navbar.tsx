@@ -1,8 +1,8 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import empirelogo from "../images/empirelogo.png";
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import empirelogo from '../images/empirelogo.png';
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,20 +16,20 @@ export const Navbar = () => {
   };
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
+    { name: 'Home', href: '/' },
+    { name: 'About Us', href: '/about' },
     // { name: "Leagues", href: "/league" },
-    { name: "Standings", href: "/standings" },
-    { name: "Calendar", href: "/calendar" },
-    { name: "Contact", href: "/contact" },
-    { name: "Blog", href: "/blog" },
+    { name: 'Standings', href: '/standings' },
+    { name: 'Calendar', href: '/calendar' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Blog', href: '/blog' },
   ];
 
   return (
-    <div className="w-full sticky top-0 z-50 bg-bone shadow-md shadow-bone-100/50 ">
-      <nav className="container flex items-center justify-between px-6 py-4 mx-auto lg:px-8 xl:px-16 max-w-screen-xl">
+    <div className="bg-bone shadow-bone-100/50 sticky top-0 z-50 w-full shadow-md">
+      <nav className="container mx-auto flex max-w-screen-xl items-center justify-between px-6 py-4 lg:px-8 xl:px-16">
         {/* Logo */}
-        <div className="flex items-center space-x-2 flex-grow lg:flex-grow-0">
+        <div className="flex flex-grow items-center space-x-2 lg:flex-grow-0">
           <Image
             src={empirelogo}
             width={24}
@@ -42,12 +42,12 @@ export const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden text-center lg:flex lg:items-center">
-          <ul className="items-center justify-center flex-1 list-none lg:flex">
+          <ul className="flex-1 list-none items-center justify-center lg:flex">
             {navigation.map((menu, index) => (
-              <li className="mr-3 nav__item" key={index}>
+              <li className="nav__item mr-3" key={index}>
                 <Link
                   href={menu.href}
-                  className="inline-block px-4 py-2 text-lg font-light text-smoky-black no-underline rounded-md hover:text-penn-red focus:text-white focus:bg-penn-red focus:outline-none lg:text-sm"
+                  className="text-smoky-black hover:text-penn-red focus:bg-penn-red inline-block rounded-md px-4 py-2 text-lg font-light no-underline focus:text-white focus:outline-none lg:text-sm"
                 >
                   {menu.name}
                 </Link>
@@ -60,10 +60,10 @@ export const Navbar = () => {
         <button
           aria-label="Toggle Menu"
           onClick={toggleMenu}
-          className="absolute top-4 right-4 px-2 py-1 text-smoky-black rounded-md lg:hidden hover:text-penn-red focus:text-white focus:bg-penn-red focus:outline-none"
+          className="text-smoky-black hover:text-penn-red focus:bg-penn-red absolute top-4 right-4 rounded-md px-2 py-1 focus:text-white focus:outline-none lg:hidden"
         >
           <svg
-            className="w-6 h-6 fill-current"
+            className="h-6 w-6 fill-current"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
           >
@@ -84,15 +84,15 @@ export const Navbar = () => {
 
         {/* Mobile Menu Panel */}
         {isMenuOpen && (
-          <div className="fixed inset-0 z-[100] bg-bone lg:hidden">
-            <div className="flex flex-col items-start justify-start w-full h-full p-4">
+          <div className="bg-bone fixed inset-0 z-[100] lg:hidden">
+            <div className="flex h-full w-full flex-col items-start justify-start p-4">
               <button
                 aria-label="Close Menu"
                 onClick={closeMenu}
-                className="self-end mb-6 text-smoky-black rounded-md hover:text-penn-red focus:text-white focus:bg-penn-red focus:outline-none "
+                className="text-smoky-black hover:text-penn-red focus:bg-penn-red mb-6 self-end rounded-md focus:text-white focus:outline-none"
               >
                 <svg
-                  className="w-6 h-6 fill-current"
+                  className="h-6 w-6 fill-current"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
@@ -104,13 +104,13 @@ export const Navbar = () => {
                 </svg>
               </button>
 
-              <div className="flex flex-col items-start justify-start w-full max-h-[50%]">
+              <div className="flex max-h-[50%] w-full flex-col items-start justify-start">
                 {navigation.map((item, index) => (
                   <Link
                     key={index}
                     href={item.href}
                     onClick={closeMenu}
-                    className="w-full px-2 py-2 text-md text-smoky-black border-b hover:bg-penn-red "
+                    className="text-md text-smoky-black hover:bg-penn-red w-full border-b px-2 py-2"
                   >
                     {item.name}
                   </Link>

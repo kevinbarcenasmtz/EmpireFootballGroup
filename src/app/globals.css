@@ -30,7 +30,6 @@
   --color-neutral: var(--color-bone);
   --color-text-light: var(--color-bone);
   --color-text-dark: var(--color-smoky-black);
-
 }
 
 @media (prefers-color-scheme: dark) {

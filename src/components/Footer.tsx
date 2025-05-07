@@ -1,28 +1,28 @@
-import Link from "next/link";
-import Image from "next/image";
-import React from "react";
-import { Container } from "@/components/Container";
-import empirelogo from "../images/empirelogo.png";
+import Link from 'next/link';
+import Image from 'next/image';
+import React from 'react';
+import { Container } from '@/components/Container';
+import empirelogo from '../images/empirelogo.png';
 
 export function Footer() {
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    { name: "Calendar", href: "/calendar" },
-    { name: "Contact", href: "/contact" },
+    { name: 'Home', href: '/' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Calendar', href: '/calendar' },
+    { name: 'Contact', href: '/contact' },
   ];
-  const legal = ["Terms of Service", "Privacy Policy", "Rules"];
+  const legal = ['Terms of Service', 'Privacy Policy', 'Rules'];
 
   return (
-    <div className="relative bg-bone">
+    <div className="bg-bone relative">
       <Container>
-        <div className="grid max-w-screen-xl grid-cols-1 gap-10 pt-10 mx-auto mt-5 border-t border-gray-800 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mx-auto mt-5 grid max-w-screen-xl grid-cols-1 gap-10 border-t border-gray-800 pt-10 sm:grid-cols-2 lg:grid-cols-5">
           {/* Logo and About Section */}
           <div className="lg:col-span-2">
             <div>
               <Link
                 href="/"
-                className="flex items-center space-x-2 text-2xl font-medium text-penn-red "
+                className="text-penn-red flex items-center space-x-2 text-2xl font-medium"
               >
                 <Image
                   src={empirelogo}
@@ -34,24 +34,22 @@ export function Footer() {
                 <span>Empire Football League</span>
               </Link>
             </div>
-            <p className="max-w-md mt-4 text-sm leading-relaxed text-smoky-black ">
-              Empire Football League is your go-to destination for community soccer.
-              Enjoy competitive, organized, and fun soccer leagues with no
-              hidden fees or hassle—just pure love for the game.
+            <p className="text-smoky-black mt-4 max-w-md text-sm leading-relaxed">
+              Empire Football League is your go-to destination for community soccer. Enjoy
+              competitive, organized, and fun soccer leagues with no hidden fees or hassle—just pure
+              love for the game.
             </p>
           </div>
 
           {/* Navigation Links */}
           <div>
-            <h4 className="text-lg font-semibold text-penn-red ">
-              Navigation
-            </h4>
-            <ul className="flex flex-col mt-4 space-y-3">
+            <h4 className="text-penn-red text-lg font-semibold">Navigation</h4>
+            <ul className="mt-4 flex flex-col space-y-3">
               {navigation.map((menu, index) => (
                 <li key={index}>
                   <Link
                     href={menu.href}
-                    className="inline-block text-sm font-normal text-smoky-black no-underline rounded-md hover:text-penn-red px-2 py-1"
+                    className="text-smoky-black hover:text-penn-red inline-block rounded-md px-2 py-1 text-sm font-normal no-underline"
                   >
                     {menu.name}
                   </Link>
@@ -62,15 +60,13 @@ export function Footer() {
 
           {/* Legal Links */}
           <div>
-            <h4 className="text-lg font-semibold text-penn-red">
-              Legal
-            </h4>
-            <ul className="flex flex-col mt-4 space-y-3">
+            <h4 className="text-penn-red text-lg font-semibold">Legal</h4>
+            <ul className="mt-4 flex flex-col space-y-3">
               {legal.map((item, index) => (
                 <li key={index}>
                   <Link
                     href="/"
-                    className="inline-block text-sm font-normal text-smoky-black no-underline rounded-md hover:text-penn-red px-2 py-1"
+                    className="text-smoky-black hover:text-penn-red inline-block rounded-md px-2 py-1 text-sm font-normal no-underline"
                   >
                     {item}
                   </Link>
@@ -81,10 +77,8 @@ export function Footer() {
 
           {/* Social Media Links */}
           <div>
-            <h4 className="text-lg font-semibold text-penn-red ">
-              Follow Us
-            </h4>
-            <div className="flex mt-5 space-x-4">
+            <h4 className="text-penn-red text-lg font-semibold">Follow Us</h4>
+            <div className="mt-5 flex space-x-4">
               <a
                 href="https://www.instagram.com/empireleagueatx/"
                 target="_blank"
@@ -100,10 +94,9 @@ export function Footer() {
         </div>
 
         {/* Footer Bottom */}
-        <div className="py-6 mt-10 text-sm text-center text-gray-600 ">
-          Built by Kevin Barcenas-Martinez. If interested about the tech stack check out my github repository.
-          For inquiries contact: kevinbarcenas2022@gmail.com
-          All rights reserved.
+        <div className="mt-10 py-6 text-center text-sm text-gray-600">
+          Built by Kevin Barcenas-Martinez. If interested about the tech stack check out my github
+          repository. For inquiries contact: kevinbarcenas2022@gmail.com All rights reserved.
         </div>
       </Container>
     </div>

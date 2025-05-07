@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* Base theme variables */
@@ -9,18 +9,18 @@
 @theme {
   /* Empire Theme */
   --color-black: #090906;
-  --color-penn-red: #9F1315;
+  --color-penn-red: #9f1315;
   --color-smoky-black: #070802;
-  --color-bone: #C7C4B1;
-  --color-black-bean: #4A0C0C;
-  
+  --color-bone: #c7c4b1;
+  --color-black-bean: #4a0c0c;
+
   /* Invictus Theme */
-  --color-dark-goldenrod: #A5842A;
-  --color-satin-gold: #BD9A3F;
-  --color-night-black: #130F09;
+  --color-dark-goldenrod: #a5842a;
+  --color-satin-gold: #bd9a3f;
+  --color-night-black: #130f09;
   --color-night: #151510;
-  --color-drab-brown: #55461D;
-  
+  --color-drab-brown: #55461d;
+
   /* Semantic Color Names */
   --color-primary: var(--color-penn-red);
   --color-primary-dark: var(--color-black-bean);

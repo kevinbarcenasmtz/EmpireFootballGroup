@@ -32,7 +32,6 @@ export const Hero = () => {
                 <div className="w-full max-w-md lg:max-w-none">
                     <Image
                         src={homeheroimage}
-                        layout="responsive"
                         width={616}
                         height={617}
                         className="rounded-md object-cover"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import { Container } from "@/components/Container";
+import empirelogo from "../images/empirelogo.png";
 
 export function Footer() {
   const navigation = [
@@ -24,9 +25,9 @@ export function Footer() {
                 className="flex items-center space-x-2 text-2xl font-medium text-penn-red "
               >
                 <Image
-                  src="/images/empirelogo.png"
-                  alt="Empire League Logo"
-                  width="32"
+                  src={empirelogo}
+                  alt="Empire Football Group Logo"
+                  width="42"
                   height="32"
                   className="w-8"
                 />

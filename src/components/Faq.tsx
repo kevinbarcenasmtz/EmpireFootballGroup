@@ -34,21 +34,21 @@ export const Faq = () => {
 
 const faqdata = [
   {
-    question: 'What is the age range for players in the league?',
+    question: 'What is the age range for players in this organization?',
     answer:
-      'The league is open to players aged 18-40. Special divisions may exist for younger or older players.',
+      "The league is open to players aged 18-40. There's leagues for over 40 players but more information can be found on the Austin Men's Soccer Association website.",
   },
   {
     question: 'How do I join the league?',
     answer:
-      'Visit our registration page or contact us via email/phone to sign up. Team and individual registrations are available.',
+      "We encourage you to follow us on social media, especially Instagram as that's the one we keep up with the most. We usually host tryouts before the season starts but that's not to say we don't encourage players trying out mid season. So feel free to drop a DM to our Instagram account and we will try to get back to you ASAP.",
   },
   {
     question: 'When does the season start and end?',
-    answer: 'Our seasons run year round, check our league schedules for more information.',
+    answer: "AMSA has seasons year round with the usual time ranges being a Fall, Spring, and Summer leagues. For confirmation we encourage you to checkout the AMSA website or just contact us!",
   },
   {
     question: 'Where are the matches played?',
-    answer: 'Matches are played at Akins Highschool Futsal court.',
+    answer: 'Matches are played across Austin but most of the league games are at the Onion Creek Complex in South Austin.',
   },
 ];

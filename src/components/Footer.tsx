@@ -2,7 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import { Container } from '@/components/Container';
-import empirelogo from '../images/empirelogo.png';
+import empirelogo from '../images/logos/empirefootballgrouplogo.png';
+
 
 export function Footer() {
   const navigation = [
@@ -27,16 +28,17 @@ export function Footer() {
                 <Image
                   src={empirelogo}
                   alt="Empire Football Group Logo"
-                  width="42"
-                  height="32"
                   className="w-8"
                 />
-                <span>Empire Football League</span>
+                <span
+                  className='font-semibold'
+                >
+                Empire Football Group</span>
               </Link>
             </div>
             <p className="text-smoky-black mt-4 max-w-md text-sm leading-relaxed">
-              Empire Football League is your go-to destination for community soccer. Enjoy
-              competitive, organized, and fun soccer leagues with no hidden fees or hassle—just pure
+              Empire Football Group is your go-to destination for community soccer. Enjoy
+              competitive, organized, and fun soccer matches with no hidden fees or hassle—just pure
               love for the game.
             </p>
           </div>

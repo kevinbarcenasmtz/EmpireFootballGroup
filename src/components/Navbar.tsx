@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import empirelogo from '../images/empirelogo.png';
+import empirelogo from '../images/logos/empirefootballgrouplogo.png';
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,11 +18,9 @@ export const Navbar = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About Us', href: '/about' },
-    // { name: "Leagues", href: "/league" },
     { name: 'Standings', href: '/standings' },
     { name: 'Calendar', href: '/calendar' },
     { name: 'Contact', href: '/contact' },
-    { name: 'Blog', href: '/blog' },
   ];
 
   return (
@@ -32,12 +30,10 @@ export const Navbar = () => {
         <div className="flex flex-grow items-center space-x-2 lg:flex-grow-0">
           <Image
             src={empirelogo}
-            width={24}
-            height={24}
             alt="Company Logo"
             className="w-6 sm:w-8"
           />
-          <span className="font-bold">Empire Football League</span>
+          <span className="font-semibold">Empire Football Group</span>
         </div>
 
         {/* Desktop Menu */}

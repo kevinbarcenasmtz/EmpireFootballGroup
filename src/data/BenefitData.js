@@ -3,8 +3,8 @@ import {
   ShieldCheckIcon,
   ClipboardDocumentCheckIcon,
   TrophyIcon,
-  CalendarDaysIcon,
-  BanknotesIcon,
+  ClockIcon,
+  HomeIcon,
 } from '@heroicons/react/24/solid';
 
 import benefitone from '../images/benefitone.jpg';
@@ -12,7 +12,7 @@ import benefittwo from '../images/benefittwo.jpg';
 
 const benefitOne = {
   title: 'Affordable Pricing for All Teams',
-  desc: 'We believe soccer should be accessible to everyone. Our simple, transparent pricing ensures no hidden fees or surprises just pure soccer enjoyment.',
+  desc: 'We believe football should be accessible to everyone. Our simple, transparent pricing ensures no hidden fees or surprises just pure football enjoyment.',
   image: benefitone,
   bullets: [
     {
@@ -34,24 +34,24 @@ const benefitOne = {
 };
 
 const benefitTwo = {
-  title: 'Exciting Formats and Features',
-  desc: 'Our league stands out with unique features designed to maximize enjoyment, competitiveness, and affordability. From thrilling tournament formats to no hidden fees, we ensure every player has an unforgettable experience.',
+  title: 'Community & Varying Levels of Skill',
+  desc: "Our organization consists of various teams such as Invictus FC and Olympus FC, as such these teams play at various levels in the AMSA divisional structure. Nevertheless, our teams are part of one close-knit community.",
   image: benefittwo,
   bullets: [
     {
-      title: 'Champions League Format',
-      desc: 'Winners of each seasonal league compete in a grand Champions League during the summer for ultimate bragging rights.',
+      title: 'Cross-Divisional Experience',
+      desc: 'Having teams across different divisions allows our players to progress as athletes corresponding to their journey as football players.',
       icon: <TrophyIcon />,
     },
     {
-      title: 'Dynamic Scheduling',
-      desc: 'With four games per day and a well-paced schedule, participants can enjoy matches without overwhelming time commitments.',
-      icon: <CalendarDaysIcon />,
+      title: 'Playing Time',
+      desc: 'Another benefit of having multiple teams playing in AMSA is the flexibility of ensuring players are receiving enough playing time.',
+      icon: <ClockIcon />,
     },
     {
-      title: 'No Hidden Fees',
-      desc: 'All-inclusive entry fees—no referee charges or ID checks—make it simple and affordable for teams to join and play.',
-      icon: <BanknotesIcon />,
+      title: 'One Large Community',
+      desc: 'Despite having three distinct teams in AMSA we encourage our players to foster relationships and to network across teams. As such we also host scrimmages across our teams to observe player and team progress.',
+      icon: <HomeIcon />,
     },
   ],
 };

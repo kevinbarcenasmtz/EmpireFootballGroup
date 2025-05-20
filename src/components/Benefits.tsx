@@ -78,7 +78,7 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
 
 interface BenefitProps {
   title: string;
-  icon: React.ReactElement<{ className?: string }>;
+  icon: React.ReactElement<any>;
   children: React.ReactNode;
 }
 

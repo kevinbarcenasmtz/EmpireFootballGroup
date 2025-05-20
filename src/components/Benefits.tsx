@@ -45,7 +45,6 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
           />
         </div>
       </div>
-
       {/* Text section */}
       <div
         className={`flex w-full flex-wrap items-center lg:w-1/2 ${
@@ -57,12 +56,10 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
             <h3 className="text-smoky-black mt-3 max-w-2xl text-3xl leading-snug font-bold tracking-tight lg:text-4xl lg:leading-tight">
               {data.title}
             </h3>
-
             <p className="max-w-2xl py-4 text-lg leading-normal text-gray-600 lg:text-xl xl:text-xl">
               {data.desc}
             </p>
           </div>
-
           <div className="mt-5 w-full">
             {data.bullets.map((item, index) => (
               <Benefit key={index} title={item.title} icon={item.icon}>
@@ -78,7 +75,7 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
 
 interface BenefitProps {
   title: string;
-  icon: React.ReactElement<any>;
+  icon: React.ReactElement;
   children: React.ReactNode;
 }
 
@@ -89,9 +86,10 @@ function Benefit({ title, icon, children }: BenefitProps) {
         className="mt-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: '#9f1315' }}
       >
+        {/* Use type assertion to avoid type errors with className */}
         {React.cloneElement(icon, {
           className: 'w-7 h-7 text-white',
-        })}
+        } as React.SVGProps<SVGSVGElement>)}
       </div>
       <div>
         <h4 className="text-smoky-black text-xl font-medium">{title}</h4>

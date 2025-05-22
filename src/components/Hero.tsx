@@ -11,8 +11,8 @@ export const Hero = () => {
           Welcome to Empire Football Group!
         </h1>
         <p className="py-5 text-center text-lg leading-relaxed text-gray-600 lg:text-left lg:text-xl xl:text-2xl">
-          Join one of AMSA&apos;s largest football organization having many teams and being a avid
-          member for a long time now! We aspire to be one of Austin&apos;s most exciting and
+          Join one of Austin&apos;s largest football organizations having many teams and being a avid
+          member of Austin Men&apos;s Soccer Association for a long time now! We aspire to be one of Austin&apos;s most exciting and
           inclusive football communities where our main focus is affordability. Our organization is
           designed for players of all skills levels who are passionate about the beautiful game.
         </p>
@@ -20,7 +20,7 @@ export const Hero = () => {
           <a
             href='/about'
             rel="noopener"
-            className="bg-penn-red hover:bg-lighter-red rounded-md px-8 py-4 text-center text-lg font-medium text-white"
+            className="bg-penn-red hover:bg-lighter-red rounded-md px-8 py-4 text-center text-lg font-semibold text-white"
           >
             Learn More
           </a>

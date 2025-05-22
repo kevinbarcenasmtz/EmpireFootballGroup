@@ -22,6 +22,13 @@
   --color-night: #151510;
   --color-drab-brown: #55461d;
 
+  /* Olympus FC */
+  --color-olympus-black: #03070Cff;
+  --color-true-blue: #386DA9ff;
+  --color-yinmn-blue: #27558Fff;
+  --color-lapis-lazuli: #345C8Eff;
+  --color-goldenrod: #D69C27ff;
+
   /* Semantic Color Names */
   --color-primary: var(--color-penn-red);
   --color-primary-dark: var(--color-black-bean);

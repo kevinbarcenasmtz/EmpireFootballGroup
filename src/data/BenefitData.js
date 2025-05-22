@@ -35,7 +35,7 @@ const benefitOne = {
 
 const benefitTwo = {
   title: 'Community & Varying Levels of Skill',
-  desc: "Our organization consists of various teams such as Invictus FC and Olympus FC, as such these teams play at various levels in the AMSA divisional structure. Nevertheless, our teams are part of one close-knit community.",
+  desc: "Our organization consists of various teams such as Invictus FC (AMSA) and Olympus FC (Bat City Soccer League), as such these teams play at various levels in their corresponding recreational league. Nevertheless, our teams are part of one close-knit community.",
   image: benefittwo,
   bullets: [
     {
@@ -45,12 +45,12 @@ const benefitTwo = {
     },
     {
       title: 'Playing Time',
-      desc: 'Another benefit of having multiple teams playing in AMSA is the flexibility of ensuring players are receiving enough playing time.',
+      desc: 'Another benefit of having multiple teams playing in Austin is the flexibility of ensuring players are receiving enough playing time.',
       icon: <ClockIcon />,
     },
     {
       title: 'One Large Community',
-      desc: 'Despite having three distinct teams in AMSA we encourage our players to foster relationships and to network across teams. As such we also host scrimmages across our teams to observe player and team progress.',
+      desc: 'Despite having three distinct teams in our organization we encourage our players to foster relationships and to network across teams. As such we also host scrimmages across our teams to observe player and team progress.',
       icon: <HomeIcon />,
     },
   ],

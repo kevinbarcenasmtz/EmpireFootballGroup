@@ -12,7 +12,6 @@ export function Footer() {
     { name: 'Calendar', href: '/calendar' },
     { name: 'Contact', href: '/contact' },
   ];
-  const legal = ['Terms of Service', 'Privacy Policy', 'Rules'];
 
   return (
     <div className="bg-bone relative">
@@ -60,22 +59,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal Links */}
-          <div>
-            <h4 className="text-penn-red text-lg font-semibold">Legal</h4>
-            <ul className="mt-4 flex flex-col space-y-3">
-              {legal.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    href="/"
-                    className="text-smoky-black hover:text-penn-red inline-block rounded-md px-2 py-1 text-sm font-normal no-underline"
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          
 
           {/* Social Media Links */}
           <div>

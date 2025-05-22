@@ -4,6 +4,7 @@ import Image from "next/image";
 import landscapePhoto from "../../images/aboutusphoto.jpg";
 import imperiumlogo from "../../images/logos/imperiumfclogo.png";
 import invictuslogo from "../../images/logos/invictuslogo.png";
+import olympuslogo from "../../images/logos/olympusfc.png";
 import sponsor1 from "../../images/logos/bluealberthlogo.png";
 import sponsor2 from "../../images/logos/albert_logo.png";
 
@@ -16,13 +17,19 @@ export default function AboutUs() {
           Welcome to Empire Football Group
         </h1>
         <p className="text-lg text-smoky-black leading-relaxed max-w-4xl mx-auto mb-8">
-          Empire Football Group is, at its core, an organization where football players around Austin can participate in one of the largest recreational football leagues in Austin, Texas — the{' '}
-          <a href="https://austinmensfootball.com/" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">
-            Austin Men&apos;s Football Association.
+          Empire Football Group is, at its core, an organization where football players around Austin can participate in some of the largest recreational football leagues in Austin, Texas — the{' '}
+          <a href="https://austinmenssoccer.com/" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">
+            Austin Men&apos;s Football Association
           </a>
+          {' '}and the{' '}
+          <a href="https://batcitysoccersevens.leagueapps.com/" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">
+            Bat City Soccer League
+          </a>.
         </p>
         <p className="text-lg text-smoky-black leading-relaxed max-w-4xl mx-auto mb-8">
-          Growing up in South Austin, the majority of our inaugural team has played at the Onion Creek Fields throughout their youth. From pickup games to after-school kick-arounds, our organization is built on a deep love for football and a focus on affordability. Originally established as Dolfgang FC, we&apos;ve evolved into a more structured group that will continue to grow alongside Austin’s thriving football community. As of 2025, we are proud to have three teams: Imperium FC (Division I), Invictus FC (Division II), and Olympus FC (Division II/III TBD).
+          Growing up in South Austin, the majority of our inaugural team has played at the Onion Creek Fields throughout their youth. From pickup games to after-school kick-arounds, our organization is built on a deep love for football and a focus on affordability. 
+          Originally established as Dolfgang FC, we&apos;ve evolved into a more structured group that will continue to grow alongside 
+          Austin&apos;s thriving football community. As of 2025, we are proud to have three teams: Imperium FC (AMSA Division I), Invictus FC (AMSA Division II), and Olympus FC (Bat City Soccer League).
         </p>
         {/* Landscape Photo */}
         <div className="relative w-full h-72 lg:h-96 max-w-5xl mx-auto rounded-lg overflow-hidden shadow-lg">
@@ -57,7 +64,7 @@ export default function AboutUs() {
                 alt="Imperium FC team logo"
                 width={200}
                 height={200}
-                className="object-contain transition-transform duration-300 hover:scale-105"
+                className="object-contain transition-transform duration-300 hover:scale-120"
                 priority
               />
             </div>
@@ -93,7 +100,7 @@ export default function AboutUs() {
                 alt="Invictus FC team logo"
                 width={200}
                 height={200}
-                className="object-contain transition-transform duration-300 hover:scale-105"
+                className="object-contain transition-transform duration-300 hover:scale-110"
                 priority
               />
             </div>
@@ -118,15 +125,57 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+      {/* Olympus FC Section */}
+      <section aria-labelledby="olympus-heading" className="mb-16 bg-gradient-to-r from-lapis-lazuli to-transparent p-8 rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+          <div className="md:w-1/3 flex justify-center">
+            <div className="w-64 h-64 relative flex items-center justify-center bg-white rounded-full shadow-lg p-4">
+              <Image
+                src={olympuslogo}
+                alt="Olympus FC team logo"
+                width={200}
+                height={200}
+                className="object-contain transition-transform duration-300 hover:scale-140"
+                priority
+              />
+            </div>
+          </div>
+          <div className="md:w-2/3">
+            <h2 id="olympus-heading" className="text-4xl font-extrabold text-olympus-black mb-4 text-center md:text-left">
+              Olympus FC
+            </h2>
+            <p className="text-lg text-olympus-black mb-6">
+              Olympus FC represents our entry into the Bat City Soccer League, expanding our competitive reach beyond traditional AMSA play. This team provides players with a different style of football experience while maintaining our core values of affordability and community-focused competition.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-bone p-4 rounded-lg shadow">
+                <h4 className="font-bold text-lapis-lazuli mb-2">Competition Level</h4>
+                <p className="text-olympus-black">Bat City Soccer League</p>
+              </div>
+              <div className="bg-bone p-4 rounded-lg shadow">
+                <h4 className="font-bold text-lapis-lazuli mb-2">League Focus</h4>
+                <p className="text-olympus-black">Alternative competitive format with community emphasis.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
 
       {/* Sponsors Section */}
       <section aria-labelledby="sponsors-heading" className="mb-16 text-center">
         <h2 id="sponsors-heading" className="text-4xl font-semibold text-smoky-black mb-10">
           OUR SPONSORS
         </h2>
+        <p id="sponsor-description" className="text-xl font-normal text-smoky-black mb-5">
+          Our uniform sponsor/manufacturer for a year now has been Alberth Jerseys! We&apos;re proud to be sponsored by him and his company as they do wonderful 
+          work and provide us with top quality jerseys for our different teams.
+        </p>
         <div className="flex flex-wrap justify-center gap-8 items-center">
-          <Image src={sponsor1} alt="Sponsor 1 logo" width={150} height={80} className="object-contain grayscale hover:grayscale-0 transition duration-300" />
-          <Image src={sponsor2} alt="Sponsor 2 logo" width={150} height={80} className="object-contain grayscale hover:grayscale-0 transition duration-300" />
+          <Image src={sponsor1} alt="Sponsor 1 logo" width={150} height={80} className="object-contain " />
+          <Image src={sponsor2} alt="Sponsor 2 logo" width={150} height={80} className="object-contain" />
         </div>
       </section>
     </Container>

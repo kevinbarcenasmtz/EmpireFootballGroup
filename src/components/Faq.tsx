@@ -36,19 +36,19 @@ const faqdata = [
   {
     question: 'What is the age range for players in this organization?',
     answer:
-      "The league is open to players aged 18-40. There's leagues for over 40 players but more information can be found on the Austin Men's Soccer Association website.",
+      "The league is open to players aged 18-40. There's leagues for over 40 players but more information can be found on the Austin Men's Soccer Association website. As for the Bat City Soccer League that is also dependent, but it has a popular demographic of young adults.",
   },
   {
     question: 'How do I join the league?',
     answer:
-      "We encourage you to follow us on social media, especially Instagram as that's the one we keep up with the most. We usually host tryouts before the season starts but that's not to say we don't encourage players trying out mid season. So feel free to drop a DM to our Instagram account and we will try to get back to you ASAP.",
+      "We encourage you to follow us on social media, especially Instagram as that's the one we keep up with the most. We usually host tryouts before the season starts but that's not to say we don't encourage players trying out mid season. So feel free to fill out the contact form in the contact tab on this website and we will get back you as soon as we can.",
   },
   {
     question: 'When does the season start and end?',
-    answer: "AMSA has seasons year round with the usual time ranges being a Fall, Spring, and Summer leagues. For confirmation we encourage you to checkout the AMSA website or just contact us!",
+    answer: "AMSA has seasons year round with the usual time ranges being a Fall, Spring, and Summer leagues. For confirmation we encourage you to checkout the AMSA website or just contact us! As for Bat City Soccer League, their league has a weekday gameday structure which allows for flexibility for busier adults so checkout our about us page.",
   },
   {
     question: 'Where are the matches played?',
-    answer: 'Matches are played across Austin but most of the league games are at the Onion Creek Complex in South Austin.',
+    answer: 'Matches are played across Austin but most of the league games are at the Onion Creek Complex in South Austin. For Bat City Soccer League, their games are played at Ojeda Middle School.',
   },
 ];

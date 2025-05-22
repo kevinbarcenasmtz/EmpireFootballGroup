@@ -24,7 +24,7 @@ export default function Home() {
               <h3 className="text-penn-red text-xl font-semibold">Affordability</h3>
               <p className="mt-3 text-gray-600">
                 One of the main goals of our organization is to provide an affordable program that allows
-                Austin players to participate in one of the city’s most popular recreational leagues.
+                Austin players to participate in some of the city&apos;s most popular recreational leagues.
               </p>
             </div>
             <div className="bg-bone rounded-lg p-6 shadow-md transition duration-300 hover:shadow-xl">

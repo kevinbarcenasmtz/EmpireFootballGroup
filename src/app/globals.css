@@ -1,9 +1,24 @@
 @import 'tailwindcss';
 
 :root {
-  /* Base theme variables */
-  --background: #f8f4f4;
+  /* Light mode colors */
+  --background: #fcf9f5;
+  --contrast: #ece6dd;
   --foreground: #171717;
+  --text-primary: #070802; /* smoky-black */
+  --text-secondary: #4a5568; /* gray-600 equivalent */
+  --text-muted: #718096; /* gray-500 equivalent */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1e1c1c;
+    --contrast: #2c2929;
+    --foreground: #262121;
+    --text-primary: #f0f0f0; /* Light text for dark mode */
+    --text-secondary: #e2e8f0; /* Lighter gray for dark mode */
+    --text-muted: #cbd5e0; /* Muted text for dark mode */
+  }
 }
 
 @theme {
@@ -29,21 +44,13 @@
   --color-lapis-lazuli: #345C8Eff;
   --color-goldenrod: #D69C27ff;
 
-  /* Semantic Color Names */
-  --color-primary: var(--color-penn-red);
-  --color-primary-dark: var(--color-black-bean);
-  --color-secondary: var(--color-dark-goldenrod);
-  --color-secondary-dark: var(--color-drab-brown);
-  --color-neutral: var(--color-bone);
-  --color-text-light: var(--color-bone);
-  --color-text-dark: var(--color-smoky-black);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #c7c4b1;
-  }
+  /* Responsive Text Colors */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-contrast: var(--contrast);
 }
 
 /* Base styles */

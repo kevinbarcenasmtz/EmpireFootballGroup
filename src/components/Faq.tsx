@@ -13,13 +13,13 @@ export const Faq = () => {
             <Disclosure>
               {({ open }) => (
                 <div>
-                  <DisclosureButton className="text-smoky-black bg-bone focus-visible:ring-opacity-75 flex w-full items-center justify-between rounded-lg px-4 py-4 text-left text-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-indigo-100">
+                  <DisclosureButton className="text-text-primary bg-contrast border border-gray-200 dark:border-gray-700 focus-visible:ring-opacity-75 flex w-full items-center justify-between rounded-lg px-4 py-4 text-left text-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring focus-visible:ring-indigo-100">
                     <span>{item.question}</span>
                     <ChevronUpIcon
                       className={`${open ? 'rotate-180 transform' : ''} text-penn-red h-5 w-5`}
                     />
                   </DisclosureButton>
-                  <DisclosurePanel className="px-4 pt-4 pb-2 text-gray-600">
+                  <DisclosurePanel className="px-4 pt-4 pb-2 text-text-secondary">
                     {item.answer}
                   </DisclosurePanel>
                 </div>

@@ -15,7 +15,7 @@ interface BenefitsData {
   desc: string;
   image: {
     src: string;
-  } & StaticImageData; // Tailwind-compatible image import
+  } & StaticImageData;
   bullets: BulletItem[];
 }
 
@@ -45,6 +45,7 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
           />
         </div>
       </div>
+      
       {/* Text section */}
       <div
         className={`flex w-full flex-wrap items-center lg:w-1/2 ${
@@ -53,10 +54,10 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
       >
         <div>
           <div className="mt-4 flex w-full flex-col">
-            <h3 className="text-smoky-black mt-3 max-w-2xl text-3xl leading-snug font-bold tracking-tight lg:text-4xl lg:leading-tight">
+            <h3 className="text-text-primary mt-3 max-w-2xl text-3xl leading-snug font-bold tracking-tight lg:text-4xl lg:leading-tight">
               {data.title}
             </h3>
-            <p className="max-w-2xl py-4 text-lg leading-normal text-gray-600 lg:text-xl xl:text-xl">
+            <p className="max-w-2xl py-4 text-lg leading-normal text-text-secondary lg:text-xl xl:text-xl">
               {data.desc}
             </p>
           </div>
@@ -83,17 +84,16 @@ function Benefit({ title, icon, children }: BenefitProps) {
   return (
     <div className="mt-8 flex items-start space-x-3">
       <div
-        className="mt-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md"
-        style={{ backgroundColor: '#9f1315' }}
+        className="mt-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md bg-penn-red"
+        // Replaced inline style with Tailwind class for consistency
       >
-        {/* Use type assertion to avoid type errors with className */}
         {React.cloneElement(icon, {
           className: 'w-7 h-7 text-white',
         } as React.SVGProps<SVGSVGElement>)}
       </div>
       <div>
-        <h4 className="text-smoky-black text-xl font-medium">{title}</h4>
-        <p className="mt-1 text-gray-600">{children}</p>
+        <h4 className="text-text-primary text-xl font-medium">{title}</h4>
+        <p className="mt-1 text-text-secondary">{children}</p>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export const SectionTitle = (props: Readonly<SectionTitleProps>) => {
       )}
 
       {props.children && (
-        <p className="leading-normal max-w-2xl py-4 text-lg lg:text-xl xl:text-xl">
+        <p className="max-w-2xl py-4 text-lg leading-normal lg:text-xl xl:text-xl">
           {props.children}
         </p>
       )}

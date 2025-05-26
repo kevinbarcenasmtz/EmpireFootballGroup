@@ -35,7 +35,7 @@ const benefitOne = {
 
 const benefitTwo = {
   title: 'Community & Varying Levels of Skill',
-  desc: "Our organization consists of various teams such as Invictus FC (AMSA) and Olympus FC (Bat City Soccer League), as such these teams play at various levels in their corresponding recreational league. Nevertheless, our teams are part of one close-knit community.",
+  desc: 'Our organization consists of various teams such as Invictus FC (AMSA) and Olympus FC (Bat City Soccer League), as such these teams play at various levels in their corresponding recreational league. Nevertheless, our teams are part of one close-knit community.',
   image: benefittwo,
   bullets: [
     {

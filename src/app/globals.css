@@ -27,7 +27,7 @@
   --color-penn-red: #9f1315;
   --color-lighter-red: #9f1315c1;
   --color-smoky-black: #070802;
-  --color-bone: #F0F0F0;
+  --color-bone: #f0f0f0;
   --color-black-bean: #4a0c0c;
 
   /* Invictus FC Theme */
@@ -38,11 +38,11 @@
   --color-drab-brown: #55461d;
 
   /* Olympus FC */
-  --color-olympus-black: #03070Cff;
-  --color-true-blue: #386DA9ff;
-  --color-yinmn-blue: #27558Fff;
-  --color-lapis-lazuli: #345C8Eff;
-  --color-goldenrod: #D69C27ff;
+  --color-olympus-black: #03070cff;
+  --color-true-blue: #386da9ff;
+  --color-yinmn-blue: #27558fff;
+  --color-lapis-lazuli: #345c8eff;
+  --color-goldenrod: #d69c27ff;
 
   /* Responsive Text Colors */
   --color-text-primary: var(--text-primary);

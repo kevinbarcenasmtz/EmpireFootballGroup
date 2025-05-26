@@ -4,7 +4,6 @@ import React from 'react';
 import { Container } from '@/components/Container';
 import empirelogo from '../images/logos/empirefootballgrouplogo.png';
 
-
 export function Footer() {
   const navigation = [
     { name: 'Home', href: '/' },
@@ -13,10 +12,10 @@ export function Footer() {
     { name: 'Contact', href: '/contact' },
   ];
 
-    return (
+  return (
     <div className="bg-contrast relative">
       <Container>
-        <div className="mx-auto mt-5 grid max-w-screen-xl grid-cols-1 gap-10 border-t border-gray-300 dark:border-gray-700 pt-10 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mx-auto mt-5 grid max-w-screen-xl grid-cols-1 gap-10 border-t border-gray-300 pt-10 sm:grid-cols-2 lg:grid-cols-5 dark:border-gray-700">
           {/* Logo and About Section */}
           <div className="lg:col-span-2">
             <div>
@@ -24,14 +23,8 @@ export function Footer() {
                 href="/"
                 className="text-penn-red flex items-center space-x-2 text-2xl font-medium"
               >
-                <Image
-                  src={empirelogo}
-                  alt="Empire Football Group Logo"
-                  className="w-8"
-                />
-                <span className='font-semibold'>
-                  Empire Football Group
-                </span>
+                <Image src={empirelogo} alt="Empire Football Group Logo" className="w-8" />
+                <span className="font-semibold">Empire Football Group</span>
               </Link>
             </div>
             <p className="text-text-primary mt-4 max-w-md text-sm leading-relaxed">
@@ -77,7 +70,7 @@ export function Footer() {
         </div>
 
         {/* Footer Bottom */}
-        <div className="mt-10 py-6 text-center text-sm text-text-muted">
+        <div className="text-text-muted mt-10 py-6 text-center text-sm">
           Built by Kevin Barcenas-Martinez. If interested about the tech stack check out my github
           repository. For inquiries contact: kevinbarcenas2022@gmail.com All rights reserved.
         </div>

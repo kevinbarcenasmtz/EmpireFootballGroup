@@ -18,28 +18,32 @@ export default function Home() {
         />
 
         <section aria-labelledby="benefits-heading" className="mt-10">
-          <h2 id="benefits-heading" className="sr-only">Benefits of Joining</h2>
+          <h2 id="benefits-heading" className="sr-only">
+            Benefits of Joining
+          </h2>
           <div className="grid gap-10 md:grid-cols-3">
-            <div className="bg-contrast border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-lg transition duration-300 hover:shadow-xl">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-lg transition duration-300 hover:shadow-xl dark:border-gray-700">
               <h3 className="text-penn-red text-xl font-semibold">Affordability</h3>
-              <p className="mt-3 text-text-secondary">
-                One of the main goals of our organization is to provide an affordable program that allows
-                Austin players to participate in some of the city&apos;s most popular recreational leagues.
+              <p className="text-text-secondary mt-3">
+                One of the main goals of our organization is to provide an affordable program that
+                allows Austin players to participate in some of the city&apos;s most popular
+                recreational leagues.
               </p>
             </div>
-            <div className="bg-contrast border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-md transition duration-300 hover:shadow-xl">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-md transition duration-300 hover:shadow-xl dark:border-gray-700">
               <h3 className="text-penn-red text-xl font-semibold">Community Engagement</h3>
-              <p className="mt-3 text-text-secondary">
-                Be part of a league and organization that values community outreach. Participate in local events and
-                support football initiatives. Our organization started from grassroots efforts and communal 
-                initiatives, and we continue providing opportunities to others.
+              <p className="text-text-secondary mt-3">
+                Be part of a league and organization that values community outreach. Participate in
+                local events and support football initiatives. Our organization started from
+                grassroots efforts and communal initiatives, and we continue providing opportunities
+                to others.
               </p>
             </div>
-            <div className="bg-contrast border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-md transition duration-300 hover:shadow-xl">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-md transition duration-300 hover:shadow-xl dark:border-gray-700">
               <h3 className="text-penn-red text-xl font-semibold">Player Spotlights</h3>
-              <p className="mt-3 text-text-secondary">
-                Get recognized for your achievements on and off the field with monthly player spotlights
-                and awards.
+              <p className="text-text-secondary mt-3">
+                Get recognized for your achievements on and off the field with monthly player
+                spotlights and awards.
               </p>
             </div>
           </div>

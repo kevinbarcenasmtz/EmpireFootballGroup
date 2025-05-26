@@ -45,7 +45,7 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
           />
         </div>
       </div>
-      
+
       {/* Text section */}
       <div
         className={`flex w-full flex-wrap items-center lg:w-1/2 ${
@@ -57,7 +57,7 @@ export const Benefits: React.FC<BenefitsProps> = ({ data, imgPos }) => {
             <h3 className="text-text-primary mt-3 max-w-2xl text-3xl leading-snug font-bold tracking-tight lg:text-4xl lg:leading-tight">
               {data.title}
             </h3>
-            <p className="max-w-2xl py-4 text-lg leading-normal text-text-secondary lg:text-xl xl:text-xl">
+            <p className="text-text-secondary max-w-2xl py-4 text-lg leading-normal lg:text-xl xl:text-xl">
               {data.desc}
             </p>
           </div>
@@ -84,7 +84,7 @@ function Benefit({ title, icon, children }: BenefitProps) {
   return (
     <div className="mt-8 flex items-start space-x-3">
       <div
-        className="mt-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md bg-penn-red"
+        className="bg-penn-red mt-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md"
         // Replaced inline style with Tailwind class for consistency
       >
         {React.cloneElement(icon, {
@@ -93,7 +93,7 @@ function Benefit({ title, icon, children }: BenefitProps) {
       </div>
       <div>
         <h4 className="text-text-primary text-xl font-medium">{title}</h4>
-        <p className="mt-1 text-text-secondary">{children}</p>
+        <p className="text-text-secondary mt-1">{children}</p>
       </div>
     </div>
   );

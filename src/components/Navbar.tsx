@@ -24,16 +24,12 @@ export const Navbar = () => {
   ];
 
   return (
-    <div className="bg-contrast shadow-gray-200 dark:shadow-black sticky top-0 z-50 w-full shadow-md border-b border-gray-200 dark:border-gray-800">
+    <div className="bg-contrast sticky top-0 z-50 w-full border-b border-gray-200 shadow-md shadow-gray-200 dark:border-gray-800 dark:shadow-black">
       <nav className="container mx-auto flex max-w-screen-xl items-center justify-between px-6 py-4 lg:px-8 xl:px-16">
         {/* Logo */}
         <div className="flex flex-grow items-center space-x-2 lg:flex-grow-0">
-          <Image
-            src={empirelogo}
-            alt="Company Logo"
-            className="w-6 sm:w-8"
-          />
-          <span className="font-semibold text-text-primary">Empire Football Group</span>
+          <Image src={empirelogo} alt="Company Logo" className="w-6 sm:w-8" />
+          <span className="text-text-primary font-semibold">Empire Football Group</span>
         </div>
 
         {/* Desktop Menu */}
@@ -43,7 +39,7 @@ export const Navbar = () => {
               <li className="nav__item mr-3" key={index}>
                 <Link
                   href={menu.href}
-                  className="text-text-primary hover:text-penn-red focus:bg-penn-red inline-block rounded-md px-4 py-2 text-lg font-light no-underline focus:text-white focus:outline-none lg:text-sm transition-colors duration-200"
+                  className="text-text-primary hover:text-penn-red focus:bg-penn-red inline-block rounded-md px-4 py-2 text-lg font-light no-underline transition-colors duration-200 focus:text-white focus:outline-none lg:text-sm"
                 >
                   {menu.name}
                 </Link>
@@ -56,7 +52,7 @@ export const Navbar = () => {
         <button
           aria-label="Toggle Menu"
           onClick={toggleMenu}
-          className="text-text-primary hover:text-penn-red focus:bg-penn-red absolute top-4 right-4 rounded-md px-2 py-1 focus:text-white focus:outline-none lg:hidden transition-colors duration-200"
+          className="text-text-primary hover:text-penn-red focus:bg-penn-red absolute top-4 right-4 rounded-md px-2 py-1 transition-colors duration-200 focus:text-white focus:outline-none lg:hidden"
         >
           <svg
             className="h-6 w-6 fill-current"
@@ -85,7 +81,7 @@ export const Navbar = () => {
               <button
                 aria-label="Close Menu"
                 onClick={closeMenu}
-                className="text-text-primary hover:text-penn-red focus:bg-penn-red mb-6 self-end rounded-md focus:text-white focus:outline-none transition-colors duration-200"
+                className="text-text-primary hover:text-penn-red focus:bg-penn-red mb-6 self-end rounded-md transition-colors duration-200 focus:text-white focus:outline-none"
               >
                 <svg
                   className="h-6 w-6 fill-current"
@@ -106,7 +102,7 @@ export const Navbar = () => {
                     key={index}
                     href={item.href}
                     onClick={closeMenu}
-                    className="text-md text-text-primary hover:bg-penn-red hover:text-white w-full border-b border-gray-200 dark:border-gray-700 px-2 py-2 transition-colors duration-200"
+                    className="text-md text-text-primary hover:bg-penn-red w-full border-b border-gray-200 px-2 py-2 transition-colors duration-200 hover:text-white dark:border-gray-700"
                   >
                     {item.name}
                   </Link>

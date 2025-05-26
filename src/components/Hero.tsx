@@ -10,15 +10,16 @@ export const Hero = () => {
         <h1 className="text-text-primary text-center text-3xl leading-tight font-bold tracking-tight lg:text-left lg:text-4xl xl:text-6xl">
           Welcome to Empire Football Group!
         </h1>
-        <p className="py-5 text-center text-lg leading-relaxed text-text-secondary lg:text-left lg:text-xl xl:text-2xl">
-          Join one of Austin&apos;s largest football organizations having many teams and being a avid
-          member of Austin Men&apos;s Soccer Association for a long time now! We aspire to be one of Austin&apos;s most exciting and
-          inclusive football communities where our main focus is affordability. Our organization is
-          designed for players of all skills levels who are passionate about the beautiful game.
+        <p className="text-text-secondary py-5 text-center text-lg leading-relaxed lg:text-left lg:text-xl xl:text-2xl">
+          Join one of Austin&apos;s largest football organizations having many teams and being a
+          avid member of Austin Men&apos;s Soccer Association for a long time now! We aspire to be
+          one of Austin&apos;s most exciting and inclusive football communities where our main focus
+          is affordability. Our organization is designed for players of all skills levels who are
+          passionate about the beautiful game.
         </p>
         <div className="flex w-full flex-col items-center gap-4 sm:flex-row lg:justify-start">
           <a
-            href='/about'
+            href="/about"
             rel="noopener"
             className="bg-penn-red hover:bg-lighter-red rounded-md px-8 py-4 text-center text-lg font-semibold text-white transition-colors duration-200"
           >

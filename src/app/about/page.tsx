@@ -3,6 +3,7 @@ import Image from 'next/image';
 import EmblaCarousel from '@/components/EmblaCarousel';
 import PlayerCarousel from '@/components/PlayerCarousel';
 import { EmblaOptionsType } from 'embla-carousel';
+import { CreativeCredits } from '@/components/CreativeCredits';
 
 // Import player data
 import { IMPERIUM_PLAYERS, INVICTUS_PLAYERS } from '@/data/PlayerData';
@@ -212,7 +213,7 @@ export default function AboutUs() {
           <PlayerCarousel 
             players={INVICTUS_PLAYERS} 
             options={PLAYER_OPTIONS}
-            teamColor="#a5842a"
+            teamColor="dark-goldenrod"
           />
         </div>
       </section>
@@ -263,6 +264,10 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+
+
+      {/* Creative Credits - Add before sponsors */}
+      <CreativeCredits />
 
       {/* Sponsors Section */}
       <section aria-labelledby="sponsors-heading" className="mb-16 text-center">

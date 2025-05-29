@@ -1,11 +1,28 @@
 import { Container } from '@/components/Container';
 import Image from 'next/image';
-import landscapePhoto from '../../images/aboutusphoto.jpg';
+import EmblaCarousel from '@/components/EmblaCarousel';
+import { EmblaOptionsType } from 'embla-carousel';
+
+// Import your carousel images
+import empfballgroupteam from '../../images/carousel/empfootballgroupteam.jpg';
+import empteam from '../../images/carousel/empireteam.jpg';
+import invictusteam from '../../images/carousel/invictusteam.jpg';
+
 import imperiumlogo from '../../images/logos/imperiumfclogo.png';
 import invictuslogo from '../../images/logos/invictuslogo.png';
 import olympuslogo from '../../images/logos/olympusfc.png';
 import sponsor1 from '../../images/logos/bluealberthlogo.png';
 import sponsor2 from '../../images/logos/albert_logo.png';
+
+const OPTIONS: EmblaOptionsType = { loop: true }
+
+// Array of images for the carousel
+const CAROUSEL_IMAGES = [
+  empfballgroupteam,
+  empteam,
+  invictusteam
+  // Add more images here as you get them
+];
 
 export default function AboutUs() {
   return (
@@ -47,16 +64,10 @@ export default function AboutUs() {
           proud to have three teams: Imperium FC (AMSA Division I), Invictus FC (AMSA Division II),
           and Olympus FC (Bat City Soccer League).
         </p>
-        {/* Landscape Photo */}
-        <div className="relative mx-auto h-72 w-full max-w-5xl overflow-hidden rounded-lg shadow-lg lg:h-96">
-          <Image
-            src={landscapePhoto}
-            alt="Football field with players at sunset"
-            fill
-            style={{ objectFit: 'cover' }}
-            className="rounded-md transition-all duration-500 ease-in-out"
-            priority
-          />
+        
+        {/* Image Carousel replacing the landscape photo */}
+        <div className="mx-auto w-full max-w-5xl">
+          <EmblaCarousel images={CAROUSEL_IMAGES} options={OPTIONS} />
         </div>
       </section>
 

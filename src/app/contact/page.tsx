@@ -39,7 +39,7 @@ export default function Contact() {
 
           {/* Additional Info */}
           <div className="mt-16 grid gap-8 md:grid-cols-3">
-            <div className="bg-background rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
               <h3 className="text-penn-red mb-3 text-xl font-bold">Join Our Teams</h3>
               <p className="text-text-primary">
                 Interested in playing for Imperium FC, Invictus FC, or Olympus FC? Let us know your
@@ -47,7 +47,7 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="bg-background rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
               <h3 className="text-penn-red mb-3 text-xl font-bold">General Questions</h3>
               <p className="text-text-primary">
                 Have questions about our leagues, training schedules, or team fees? We&apos;re here
@@ -55,7 +55,7 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="bg-background rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
+            <div className="bg-contrast rounded-lg border border-gray-200 p-6 text-center shadow-md dark:border-gray-700">
               <h3 className="text-penn-red mb-3 text-xl font-bold">Partnerships</h3>
               <p className="text-text-primary">
                 Interested in partnering with Empire Football Group or sponsorship opportunities?

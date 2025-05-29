@@ -63,3 +63,117 @@ body {
 /* Custom utility classes */
 @layer components {
 }
+
+
+/* Embla Carousel Styles */
+.embla {
+  max-width: 100%;
+  margin: auto;
+  --slide-height: 19rem;
+  --slide-spacing: 1rem;
+  --slide-size: 100%;
+}
+
+@media (min-width: 768px) {
+  .embla {
+    --slide-height: 24rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .embla {
+    --slide-height: 28rem;
+  }
+}
+
+.embla__viewport {
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.embla__container {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+  margin-left: calc(var(--slide-spacing) * -1);
+}
+
+.embla__slide {
+  transform: translate3d(0, 0, 0);
+  flex: 0 0 var(--slide-size);
+  min-width: 0;
+  padding-left: var(--slide-spacing);
+}
+
+.embla__slide__image {
+  position: relative;
+  width: 100%;
+  height: var(--slide-height);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.embla__controls {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-top: 1.8rem;
+}
+
+.embla__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.embla__dot {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  touch-action: manipulation;
+  display: inline-flex;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.embla__dot:hover {
+  transform: scale(1.1);
+}
+
+.embla__dot:after {
+  box-shadow: inset 0 0 0 0.2rem rgb(156 163 175);
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  content: '';
+  transition: all 0.2s ease;
+}
+
+.embla__dot--selected:after {
+  box-shadow: inset 0 0 0 0.2rem var(--color-penn-red);
+  background-color: var(--color-penn-red);
+}
+
+@media (prefers-color-scheme: dark) {
+  .embla__dot:after {
+    box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
+  }
+  
+  .embla__dot--selected:after {
+    box-shadow: inset 0 0 0 0.2rem var(--color-penn-red);
+    background-color: var(--color-penn-red);
+  }
+}

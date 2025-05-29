@@ -1,7 +1,11 @@
 import { Container } from '@/components/Container';
 import Image from 'next/image';
 import EmblaCarousel from '@/components/EmblaCarousel';
+import PlayerCarousel from '@/components/PlayerCarousel';
 import { EmblaOptionsType } from 'embla-carousel';
+
+// Import player data
+import { IMPERIUM_PLAYERS, INVICTUS_PLAYERS } from '@/data/PlayerData';
 
 // Import your carousel images
 import empfballgroupteam from '../../images/carousel/empfootballgroupteam.jpg';
@@ -15,6 +19,7 @@ import sponsor1 from '../../images/logos/bluealberthlogo.png';
 import sponsor2 from '../../images/logos/albert_logo.png';
 
 const OPTIONS: EmblaOptionsType = { loop: true }
+const PLAYER_OPTIONS: EmblaOptionsType = { align: 'start', containScroll: 'trimSnaps' }
 
 // Array of images for the carousel
 const CAROUSEL_IMAGES = [
@@ -93,92 +98,122 @@ export default function AboutUs() {
       {/* Imperium FC Section */}
       <section
         aria-labelledby="imperium-heading"
-        className="from-lighter-red mb-16 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md"
+        className="mb-16"
       >
-        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
-          <div className="flex justify-center md:w-1/3">
-            <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-white p-4 shadow-lg">
-              <Image
-                src={imperiumlogo}
-                alt="Imperium FC team logo"
-                width={200}
-                height={200}
-                className="object-contain transition-transform duration-300 hover:scale-120"
-                priority
-              />
-            </div>
-          </div>
-          <div className="md:w-2/3">
-            <h2
-              id="imperium-heading"
-              className="text-text-primary mb-4 text-center text-4xl font-extrabold md:text-left"
-            >
-              Imperium FC
-            </h2>
-            <p className="text-text-primary mb-6 text-lg">
-              Imperium FC stands as our flagship competitive program, representing the initial team
-              and pilot group of our community. Founded with the vision to develop talent and
-              compete at the highest level of AMSA, Imperium FC embodies our commitment to technical
-              skill, tactical awareness, and athleticism—while keeping community at the core.
-            </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-lighter-red mb-2 font-bold">Competition Level</h4>
-                <p className="text-text-primary">Premier and Division I</p>
-              </div>
-              <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-lighter-red mb-2 font-bold">Training Commitment</h4>
-                <p className="text-text-primary">
-                  Coaching with structured weekly training sessions.
-                </p>
+        {/* Team Banner */}
+        <div className="from-lighter-red mb-8 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md">
+          <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+            <div className="flex justify-center md:w-1/3">
+              <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-white p-4 shadow-lg">
+                <Image
+                  src={imperiumlogo}
+                  alt="Imperium FC team logo"
+                  width={200}
+                  height={200}
+                  className="object-contain transition-transform duration-300 hover:scale-120"
+                  priority
+                />
               </div>
             </div>
+            <div className="md:w-2/3">
+              <h2
+                id="imperium-heading"
+                className="text-text-primary mb-4 text-center text-4xl font-extrabold md:text-left"
+              >
+                Imperium FC
+              </h2>
+              <p className="text-text-primary mb-6 text-lg">
+                Imperium FC stands as our flagship competitive program, representing the initial team
+                and pilot group of our community. Founded with the vision to develop talent and
+                compete at the highest level of AMSA, Imperium FC embodies our commitment to technical
+                skill, tactical awareness, and athleticism—while keeping community at the core.
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
+                  <h4 className="text-lighter-red mb-2 font-bold">Competition Level</h4>
+                  <p className="text-text-primary">Premier and Division I</p>
+                </div>
+                <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
+                  <h4 className="text-lighter-red mb-2 font-bold">Training Commitment</h4>
+                  <p className="text-text-primary">
+                    Coaching with structured weekly training sessions.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        {/* Player Showcase - Now outside the banner */}
+        <div className="mt-8">
+          <h3 className="text-text-primary mb-6 text-center text-2xl font-bold">
+            Meet Our Players
+          </h3>
+          <PlayerCarousel 
+            players={IMPERIUM_PLAYERS} 
+            options={PLAYER_OPTIONS}
+            teamColor="lighter-red"
+          />
         </div>
       </section>
 
       {/* Invictus FC Section */}
       <section
         aria-labelledby="invictus-heading"
-        className="from-dark-goldenrod mb-16 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md"
+        className="mb-16"
       >
-        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
-          <div className="flex justify-center md:w-1/3">
-            <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-white p-4 shadow-lg">
-              <Image
-                src={invictuslogo}
-                alt="Invictus FC team logo"
-                width={200}
-                height={200}
-                className="object-contain transition-transform duration-300 hover:scale-110"
-                priority
-              />
-            </div>
-          </div>
-          <div className="md:w-2/3">
-            <h2
-              id="invictus-heading"
-              className="text-text-primary mb-4 text-center text-4xl font-extrabold md:text-left"
-            >
-              Invictus FC
-            </h2>
-            <p className="text-text-primary mb-6 text-lg">
-              Invictus FC is our development and second-division team built to give more players a
-              chance to compete and grow. Invictus fosters player improvement and team cohesion
-              through structured training while preparing players to eventually contribute at the
-              top level.
-            </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-dark-goldenrod mb-2 font-bold">Competition Level</h4>
-                <p className="text-text-primary">Division II</p>
-              </div>
-              <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-dark-goldenrod mb-2 font-bold">Training Commitment</h4>
-                <p className="text-text-primary">Regular coaching and team-building practices.</p>
+        {/* Team Banner */}
+        <div className="from-dark-goldenrod mb-8 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md">
+          <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+            <div className="flex justify-center md:w-1/3">
+              <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-white p-4 shadow-lg">
+                <Image
+                  src={invictuslogo}
+                  alt="Invictus FC team logo"
+                  width={200}
+                  height={200}
+                  className="object-contain transition-transform duration-300 hover:scale-110"
+                  priority
+                />
               </div>
             </div>
+            <div className="md:w-2/3">
+              <h2
+                id="invictus-heading"
+                className="text-text-primary mb-4 text-center text-4xl font-extrabold md:text-left"
+              >
+                Invictus FC
+              </h2>
+              <p className="text-text-primary mb-6 text-lg">
+                Invictus FC is our development and second-division team built to give more players a
+                chance to compete and grow. Invictus fosters player improvement and team cohesion
+                through structured training while preparing players to eventually contribute at the
+                top level.
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
+                  <h4 className="text-dark-goldenrod mb-2 font-bold">Competition Level</h4>
+                  <p className="text-text-primary">Division II</p>
+                </div>
+                <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
+                  <h4 className="text-dark-goldenrod mb-2 font-bold">Training Commitment</h4>
+                  <p className="text-text-primary">Regular coaching and team-building practices.</p>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        {/* Player Showcase - Now outside the banner */}
+        <div className="mt-8">
+          <h3 className="text-text-primary mb-6 text-center text-2xl font-bold">
+            Meet Our Players
+          </h3>
+          <PlayerCarousel 
+            players={INVICTUS_PLAYERS} 
+            options={PLAYER_OPTIONS}
+            teamColor="#a5842a"
+          />
         </div>
       </section>
 

@@ -1,4 +1,3 @@
-// src/lib/env-validation.ts
 export interface RequiredEnvVars {
     // Client-side (browser) environment variables
     NEXT_PUBLIC_SQUARE_APPLICATION_ID: string;
@@ -12,6 +11,14 @@ export interface RequiredEnvVars {
     SQUARE_ACCESS_TOKEN: string;
     SQUARE_ENVIRONMENT: 'sandbox' | 'production';
     SQUARE_LOCATION_ID: string;
+  }
+
+  export interface EmailEnvVars {
+    // Email system environment variables
+    RESEND_API_KEY: string;
+    FROM_EMAIL: string;
+    ADMIN_EMAIL: string;
+    NEXT_PUBLIC_APP_URL: string;
   }
   
   export class EnvironmentError extends Error {
@@ -92,8 +99,64 @@ export interface RequiredEnvVars {
       console.error('Missing server environment variables:', missingVars)
       throw new EnvironmentError(missingVars)
     }
+
+    // Log warnings for missing email variables but don't fail
+    const emailVars = {
+      RESEND_API_KEY: process.env.RESEND_API_KEY,
+      FROM_EMAIL: process.env.FROM_EMAIL,
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
+    }
+    
+    const missingEmailVars = Object.entries(emailVars)
+      .filter(([key, value]) => !value)
+      .map(([key]) => key)
+    
+    if (missingEmailVars.length > 0) {
+      console.warn(`Warning: Missing email environment variables: ${missingEmailVars.join(', ')}. Email notifications will be disabled.`)
+    }
   
     return env as ServerEnvVars
+  }
+
+  /**
+   * Validates email system environment variables
+   * Call this when email functionality is needed
+   */
+  export function validateEmailEnvironment(): EmailEnvVars {
+    const requiredVars = {
+      RESEND_API_KEY: process.env.RESEND_API_KEY,
+      FROM_EMAIL: process.env.FROM_EMAIL || 'noreply@empirefootballgroup.com',
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
+    }
+
+    const missingVars = Object.entries(requiredVars)
+      .filter(([key, value]) => {
+        // FROM_EMAIL has a default, so only check if it's explicitly empty
+        if (key === 'FROM_EMAIL') return false
+        return !value
+      })
+      .map(([key]) => key)
+
+    if (missingVars.length > 0) {
+      throw new EnvironmentError(missingVars)
+    }
+
+    return requiredVars as EmailEnvVars
+  }
+
+  /**
+   * Check if email functionality is available
+   * Returns true if all email environment variables are set
+   */
+  export function isEmailAvailable(): boolean {
+    try {
+      validateEmailEnvironment()
+      return true
+    } catch (error) {
+      return false
+    }
   }
   
   /**
@@ -117,5 +180,23 @@ export interface RequiredEnvVars {
       NEXT_PUBLIC_SQUARE_LOCATION_ID: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || '',
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    }
+  }
+
+  /**
+   * Get all environment information for debugging
+   * Safe for logging (doesn't expose sensitive values)
+   */
+  export function getEnvironmentInfo() {
+    return {
+      nodeEnv: process.env.NODE_ENV,
+      squareEnvironment: process.env.SQUARE_ENVIRONMENT,
+      hasSquareAccess: !!process.env.SQUARE_ACCESS_TOKEN,
+      hasSquareLocation: !!process.env.SQUARE_LOCATION_ID,
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      hasFromEmail: !!process.env.FROM_EMAIL,
+      hasAdminEmail: !!process.env.ADMIN_EMAIL,
+      hasAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
+      emailAvailable: isEmailAvailable()
     }
   }

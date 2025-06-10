@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { validateServerEnvironment, EnvironmentError } from '@/lib/env-validation'
 import { getSquareErrorMessage, logSquareError } from '@/lib/square-errors'
+import { sendPaymentEmails, getCollectionAdminEmail } from './email-actions'
 
 // Try using the legacy Square SDK instead
 import { Client, Environment } from 'square/legacy'
@@ -122,12 +123,41 @@ export async function processPayment(formData: FormData) {
       // Don't fail the payment for this, just log it
     }
 
+    // Get admin email for notifications
+    const adminEmail = await getCollectionAdminEmail(collection.id)
+    
+    // Send emails asynchronously (don't block payment success)
+    if (adminEmail) {
+      console.log('Sending payment emails...')
+      
+      // Send emails in the background
+      sendPaymentEmails(
+        payment,
+        { ...collection, current_amount: collection.current_amount + amount }, // Updated collection amount
+        adminEmail,
+        result.payment?.receiptUrl
+      ).then(({ receiptResult, adminResult }) => {
+        console.log('Email results:', {
+          paymentId: payment.id,
+          receiptSent: receiptResult.success,
+          adminNotified: adminResult.success,
+          receiptError: receiptResult.error,
+          adminError: adminResult.error
+        })
+      }).catch(error => {
+        console.error('Error sending payment emails:', error)
+      })
+    } else {
+      console.warn('No admin email found for collection, skipping admin notification')
+    }
+
     revalidatePath(`/pay/${collectionSlug}`)
     return { 
       success: true, 
       payment: payment,
       paymentId: result.payment?.id,
-      receiptUrl: result.payment?.receiptUrl
+      receiptUrl: result.payment?.receiptUrl,
+      emailsQueued: !!adminEmail
     }
 
   } catch (error) {

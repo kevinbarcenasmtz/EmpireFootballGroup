@@ -5,6 +5,8 @@ import { useState, useEffect, useRef } from 'react'
 import { processPayment } from '@/app/actions/payment-actions'
 import { PaymentCollection } from '@/types/database'
 import { getClientEnvironment } from '@/lib/env-validation'
+import { PaymentRetryManager } from '@/lib/payment-retry'
+import { getSquareErrorMessage } from '@/lib/square-errors'
 
 interface PaymentFormProps {
   collection: PaymentCollection
@@ -32,10 +34,22 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
   const [squareInitialized, setSquareInitialized] = useState(false)
   const [isInitializing, setIsInitializing] = useState(true)
   const [initializationError, setInitializationError] = useState<string>('')
+  const [retryState, setRetryState] = useState<{
+    isRetrying: boolean
+    attempt: number
+    maxAttempts: number
+    canRetry: boolean
+  }>({
+    isRetrying: false,
+    attempt: 0,
+    maxAttempts: 3,
+    canRetry: true
+  })
   
   const cardRef = useRef<any>(null)
   const paymentsRef = useRef<any>(null)
   const cardContainerRef = useRef<HTMLDivElement>(null)
+  const retryManagerRef = useRef<PaymentRetryManager>(new PaymentRetryManager())
 
   const finalAmount = useCustomAmount ? parseFloat(customAmount) || 0 : amount
   const isFormValid = finalAmount >= 1 && payerName.trim() && payerEmail.trim()
@@ -134,7 +148,7 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
 
     // Wait for both Square SDK and DOM to be ready
     let attempts = 0
-    const maxAttempts = 10
+    const maxAttempts = 20
     
     const tryInitialize = () => {
       attempts++
@@ -183,44 +197,91 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
     setPaymentResult(result)
     setSuccess(true)
     setIsProcessing(false)
+    setRetryState(prev => ({ ...prev, isRetrying: false, attempt: 0 }))
+  }
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error)
+    
+    // Get user-friendly error message
+    const { message, retryable } = getSquareErrorMessage(error)
+    setError(message)
+    
+    // Update retry state
+    const currentRetryState = retryManagerRef.current.getRetryState()
+    setRetryState({
+      isRetrying: false,
+      attempt: currentRetryState.attempt,
+      maxAttempts: currentRetryState.totalAttempts,
+      canRetry: retryable && currentRetryState.canRetry
+    })
+    
+    setIsProcessing(false)
+  }
+
+  const executePayment = async (): Promise<any> => {
+    if (!cardRef.current) {
+      throw new Error('Payment form not initialized')
+    }
+
+    // Tokenize the card
+    const tokenResult = await cardRef.current.tokenize()
+    
+    if (tokenResult.status !== 'OK') {
+      throw new Error('Card validation failed. Please check your payment information.')
+    }
+
+    // Process payment via server action
+    const formData = new FormData()
+    formData.append('sourceId', tokenResult.token)
+    formData.append('collectionSlug', collection.slug)
+    formData.append('amount', finalAmount.toString())
+    formData.append('payerEmail', payerEmail)
+    formData.append('payerName', payerName)
+
+    const result = await processPayment(formData)
+
+    if (result.error) {
+      // Create error object for retry manager
+      const error = new Error(result.error)
+      ;(error as any).isServerError = true
+      throw error
+    }
+
+    return result
   }
 
   const handlePayNow = async () => {
-    if (!cardRef.current || !isFormValid) return
+    if (!isFormValid) return
 
     setIsProcessing(true)
     setError('')
 
     try {
-      // Tokenize the card
-      const tokenResult = await cardRef.current.tokenize()
-      
-      if (tokenResult.status === 'OK') {
-        // Process payment via server action
-        const formData = new FormData()
-        formData.append('sourceId', tokenResult.token)
-        formData.append('collectionSlug', collection.slug)
-        formData.append('amount', finalAmount.toString())
-        formData.append('payerEmail', payerEmail)
-        formData.append('payerName', payerName)
-
-        const result = await processPayment(formData)
-
-        if (result.error) {
-          setError(result.error)
-          setIsProcessing(false)
-        } else {
-          handlePaymentSuccess(result)
+      // Execute payment with retry logic
+      const result = await retryManagerRef.current.executeWithRetry(
+        executePayment,
+        (attempt, error) => {
+          console.log(`Payment retry attempt ${attempt}:`, error.message)
+          setRetryState(prev => ({
+            ...prev,
+            isRetrying: true,
+            attempt: attempt
+          }))
         }
-      } else {
-        setError('Card validation failed. Please check your payment information.')
-        setIsProcessing(false)
-      }
+      )
+
+      handlePaymentSuccess(result)
     } catch (error) {
-      console.error('Payment error:', error)
-      setError('Payment processing failed. Please try again.')
-      setIsProcessing(false)
+      handlePaymentError(error)
     }
+  }
+
+  const handleRetryPayment = async () => {
+    // Reset retry manager and try again
+    retryManagerRef.current.reset()
+    setRetryState(prev => ({ ...prev, attempt: 0, canRetry: true }))
+    await handlePayNow()
   }
 
   const handleRetryInitialization = () => {
@@ -325,6 +386,7 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
         <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
           <p className="text-blue-800 text-xs">
             Debug: Square initialized: {squareInitialized ? 'Yes' : 'No'}
+            {retryState.attempt > 0 && ` | Retry attempt: ${retryState.attempt}/${retryState.maxAttempts}`}
           </p>
         </div>
       )}
@@ -467,15 +529,35 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
         </div>
       </div>
 
+      {/* Retry State Display */}
+      {retryState.isRetrying && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
+            <p className="text-yellow-800 text-sm">
+              Retrying payment... (attempt {retryState.attempt}/{retryState.maxAttempts})
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Error Display */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
           <p className="text-red-800 text-sm">{error}</p>
+          {retryState.canRetry && retryState.attempt > 0 && (
+            <button
+              onClick={handleRetryPayment}
+              className="mt-2 text-penn-red hover:text-lighter-red text-sm font-medium underline"
+            >
+              Try Again
+            </button>
+          )}
         </div>
       )}
 
       {/* Processing State */}
-      {isProcessing && (
+      {isProcessing && !retryState.isRetrying && (
         <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
           <div className="flex items-center">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>

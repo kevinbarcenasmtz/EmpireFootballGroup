@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto'
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { validateServerEnvironment, EnvironmentError } from '@/lib/env-validation'
+import { getSquareErrorMessage, logSquareError } from '@/lib/square-errors'
 
 // Try using the legacy Square SDK instead
 import { Client, Environment } from 'square/legacy'
@@ -20,29 +21,17 @@ export async function processPayment(formData: FormData) {
     const payerEmail = formData.get('payerEmail') as string
     const payerName = formData.get('payerName') as string
 
-    // Validate inputs
-    if (!sourceId || !collectionSlug || !amount || amount <= 0) {
-      return { error: 'Invalid payment data' }
-    }
+    // Comprehensive input validation
+    const validationError = validatePaymentInputs({
+      sourceId,
+      collectionSlug,
+      amount,
+      payerEmail,
+      payerName
+    })
 
-    if (amount < 1) {
-      return { error: 'Minimum payment amount is $1.00' }
-    }
-
-    // Additional validation for maximum amount (safety check)
-    if (amount > 10000) {
-      return { error: 'Maximum payment amount is $10,000' }
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(payerEmail)) {
-      return { error: 'Please enter a valid email address' }
-    }
-
-    // Validate name (basic sanitization)
-    if (!payerName.trim() || payerName.trim().length < 2) {
-      return { error: 'Please enter a valid name' }
+    if (validationError) {
+      return { error: validationError }
     }
 
     console.log('Processing payment:', {
@@ -149,26 +138,72 @@ export async function processPayment(formData: FormData) {
       return { error: 'Payment system configuration error. Please contact support.' }
     }
     
-    // Handle any Square errors
+    // Handle Square API errors with specific error messages
     if (error && typeof error === 'object' && 'statusCode' in error) {
-      console.error('Square Error Details:', {
-        statusCode: (error as any).statusCode,
-        message: (error as any).message,
-      })
-      
-      // Handle specific Square error codes
-      const statusCode = (error as any).statusCode
-      if (statusCode === 400) {
-        return { error: 'Invalid payment information. Please check your card details.' }
-      } else if (statusCode === 401) {
-        return { error: 'Payment system authentication error. Please contact support.' }
-      } else if (statusCode === 402) {
-        return { error: 'Payment was declined. Please try a different payment method.' }
-      } else if (statusCode >= 500) {
-        return { error: 'Payment system temporarily unavailable. Please try again in a few minutes.' }
-      }
+      logSquareError(error, 'payment-processing')
+      const { message } = getSquareErrorMessage(error)
+      return { error: message }
     }
     
     return { error: 'Payment processing failed. Please try again.' }
   }
+}
+
+/**
+ * Validate payment inputs with comprehensive checks
+ */
+function validatePaymentInputs(inputs: {
+  sourceId: string
+  collectionSlug: string
+  amount: number
+  payerEmail: string
+  payerName: string
+}): string | null {
+  const { sourceId, collectionSlug, amount, payerEmail, payerName } = inputs
+
+  // Basic required field validation
+  if (!sourceId || !collectionSlug || !amount || !payerEmail || !payerName) {
+    return 'All payment fields are required'
+  }
+
+  // Amount validation
+  if (isNaN(amount) || amount <= 0) {
+    return 'Invalid payment amount'
+  }
+
+  if (amount < 1) {
+    return 'Minimum payment amount is $1.00'
+  }
+
+  if (amount > 10000) {
+    return 'Maximum payment amount is $10,000'
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(payerEmail)) {
+    return 'Please enter a valid email address'
+  }
+
+  // Name validation
+  const trimmedName = payerName.trim()
+  if (trimmedName.length < 2) {
+    return 'Please enter a valid name (at least 2 characters)'
+  }
+
+  if (trimmedName.length > 100) {
+    return 'Name is too long (maximum 100 characters)'
+  }
+
+  // Collection slug validation
+  if (!/^[a-z0-9-]+$/.test(collectionSlug)) {
+    return 'Invalid collection identifier'
+  }
+
+  // Source ID validation (basic check for Square token format)
+  if (!sourceId.startsWith('ccof:') && !sourceId.startsWith('cnon:')) {
+    return 'Invalid payment token format'
+  }
+
+  return null // All validations passed
 }

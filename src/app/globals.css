@@ -64,7 +64,6 @@ body {
 @layer components {
 }
 
-
 /* Embla Carousel Styles */
 .embla {
   max-width: 100%;
@@ -110,7 +109,9 @@ body {
   height: var(--slide-height);
   border-radius: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .embla__controls {
@@ -171,14 +172,12 @@ body {
   .embla__dot:after {
     box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
   }
-  
+
   .embla__dot--selected:after {
     box-shadow: inset 0 0 0 0.2rem var(--color-penn-red);
     background-color: var(--color-penn-red);
   }
 }
-
-
 
 /* Player Carousel Styles */
 .embla-players {
@@ -275,15 +274,21 @@ body {
   border-radius: 0.5rem;
   overflow: hidden;
   height: var(--slide-height);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .player-card:hover {
   transform: translateY(-4px); /* Reduce hover lift to prevent cutoff */
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .player-card__image {
@@ -412,17 +417,16 @@ body {
   .player-card {
     border-color: rgb(75 85 99);
   }
-  
+
   .embla__button {
     box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
   }
-  
+
   .embla__button:disabled:hover {
     box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
   }
-  
+
   .embla-players__dot:after {
     box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
   }
 }
-

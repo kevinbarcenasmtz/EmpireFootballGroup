@@ -3,33 +3,27 @@ import { Container } from './Container';
 
 export const CreativeCredits = () => {
   return (
-    <section className="bg-contrast py-6 mb-4">
+    <section className="bg-contrast mb-4 py-6">
       <Container>
-        <div className="mx-auto max-w-4xl text-center ">
-          <h2 className="text-text-primary mb-6 text-3xl font-bold">
-            Behind the Lens
-          </h2>
-          
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-text-primary mb-6 text-3xl font-bold">Behind the Lens</h2>
+
           <div className="bg-background rounded-lg border border-gray-200 p-8 shadow-lg dark:border-gray-700">
             <div className="mb-6">
-              <h3 className="text-penn-red mb-2 text-2xl font-semibold">
-                Sarah Poliuc
-              </h3>
+              <h3 className="text-penn-red mb-2 text-2xl font-semibold">Sarah Poliuc</h3>
               <p className="text-text-secondary text-lg">
                 Creative Director • Photographer • Graphic Designer
               </p>
             </div>
-            
+
             <p className="text-text-primary mb-6 text-lg leading-relaxed">
-              All photography, graphic design, and marketing materials for Empire Football Group 
-              are created by the talented Sarah Poliuc. Her creative vision brings our teams to 
-              life through stunning visuals and professional branding.
+              All photography, graphic design, and marketing materials for Empire Football Group are
+              created by the talented Sarah Poliuc. Her creative vision brings our teams to life
+              through stunning visuals and professional branding.
             </p>
-            
+
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <p className="text-text-secondary text-sm font-medium">
-                Photo by Sarah Poliuc
-              </p>
+              <p className="text-text-secondary text-sm font-medium">Photo by Sarah Poliuc</p>
               <div className="flex items-center gap-2">
                 <span className="text-text-secondary text-sm">Follow her work:</span>
                 <a

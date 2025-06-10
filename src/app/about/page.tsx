@@ -19,14 +19,14 @@ import olympuslogo from '../../images/logos/olympusfc.png';
 import sponsor1 from '../../images/logos/bluealberthlogo.png';
 import sponsor2 from '../../images/logos/albert_logo.png';
 
-const OPTIONS: EmblaOptionsType = { loop: true }
-const PLAYER_OPTIONS: EmblaOptionsType = { align: 'start', containScroll: 'trimSnaps' }
+const OPTIONS: EmblaOptionsType = { loop: true };
+const PLAYER_OPTIONS: EmblaOptionsType = { align: 'start', containScroll: 'trimSnaps' };
 
 // Array of images for the carousel
 const CAROUSEL_IMAGES = [
   empfballgroupteam,
   empteam,
-  invictusteam
+  invictusteam,
   // Add more images here as you get them
 ];
 
@@ -70,7 +70,7 @@ export default function AboutUs() {
           proud to have three teams: Imperium FC (AMSA Division I), Invictus FC (AMSA Division II),
           and Olympus FC (Bat City Soccer League).
         </p>
-        
+
         {/* Image Carousel replacing the landscape photo */}
         <div className="mx-auto w-full max-w-5xl">
           <EmblaCarousel images={CAROUSEL_IMAGES} options={OPTIONS} />
@@ -97,10 +97,7 @@ export default function AboutUs() {
       </section>
 
       {/* Imperium FC Section */}
-      <section
-        aria-labelledby="imperium-heading"
-        className="mb-16"
-      >
+      <section aria-labelledby="imperium-heading" className="mb-16">
         {/* Team Banner */}
         <div className="from-lighter-red mb-8 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md">
           <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
@@ -124,10 +121,11 @@ export default function AboutUs() {
                 Imperium FC
               </h2>
               <p className="text-text-primary mb-6 text-lg">
-                Imperium FC stands as our flagship competitive program, representing the initial team
-                and pilot group of our community. Founded with the vision to develop talent and
-                compete at the highest level of AMSA, Imperium FC embodies our commitment to technical
-                skill, tactical awareness, and athleticism—while keeping community at the core.
+                Imperium FC stands as our flagship competitive program, representing the initial
+                team and pilot group of our community. Founded with the vision to develop talent and
+                compete at the highest level of AMSA, Imperium FC embodies our commitment to
+                technical skill, tactical awareness, and athleticism—while keeping community at the
+                core.
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
@@ -144,14 +142,14 @@ export default function AboutUs() {
             </div>
           </div>
         </div>
-        
+
         {/* Player Showcase - Now outside the banner */}
         <div className="mt-8">
           <h3 className="text-text-primary mb-6 text-center text-2xl font-bold">
             Meet Our Players
           </h3>
-          <PlayerCarousel 
-            players={IMPERIUM_PLAYERS} 
+          <PlayerCarousel
+            players={IMPERIUM_PLAYERS}
             options={PLAYER_OPTIONS}
             teamColor="lighter-red"
           />
@@ -159,10 +157,7 @@ export default function AboutUs() {
       </section>
 
       {/* Invictus FC Section */}
-      <section
-        aria-labelledby="invictus-heading"
-        className="mb-16"
-      >
+      <section aria-labelledby="invictus-heading" className="mb-16">
         {/* Team Banner */}
         <div className="from-dark-goldenrod mb-8 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md">
           <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
@@ -204,14 +199,14 @@ export default function AboutUs() {
             </div>
           </div>
         </div>
-        
+
         {/* Player Showcase - Now outside the banner */}
         <div className="mt-8">
           <h3 className="text-text-primary mb-6 text-center text-2xl font-bold">
             Meet Our Players
           </h3>
-          <PlayerCarousel 
-            players={INVICTUS_PLAYERS} 
+          <PlayerCarousel
+            players={INVICTUS_PLAYERS}
             options={PLAYER_OPTIONS}
             teamColor="dark-goldenrod"
           />
@@ -264,7 +259,6 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
-
 
       {/* Creative Credits - Add before sponsors */}
       <CreativeCredits />

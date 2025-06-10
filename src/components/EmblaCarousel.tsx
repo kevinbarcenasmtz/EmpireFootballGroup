@@ -1,20 +1,20 @@
-'use client'
-import React from 'react'
-import Image, { StaticImageData } from 'next/image'
-import { EmblaOptionsType } from 'embla-carousel'
-import { DotButton, useDotButton } from './EmblaCarouselDotButton'
-import useEmblaCarousel from 'embla-carousel-react'
+'use client';
+import React from 'react';
+import Image, { StaticImageData } from 'next/image';
+import { EmblaOptionsType } from 'embla-carousel';
+import { DotButton, useDotButton } from './EmblaCarouselDotButton';
+import useEmblaCarousel from 'embla-carousel-react';
 
 type PropType = {
-  images: StaticImageData[]
-  options?: EmblaOptionsType
-}
+  images: StaticImageData[];
+  options?: EmblaOptionsType;
+};
 
-const EmblaCarousel: React.FC<PropType> = (props) => {
-  const { images, options } = props
-  const [emblaRef, emblaApi] = useEmblaCarousel(options)
+const EmblaCarousel: React.FC<PropType> = props => {
+  const { images, options } = props;
+  const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
-  const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi)
+  const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi);
 
   return (
     <section className="embla">
@@ -43,15 +43,13 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
             <DotButton
               key={index}
               onClick={() => onDotButtonClick(index)}
-              className={`embla__dot${
-                index === selectedIndex ? ' embla__dot--selected' : ''
-              }`}
+              className={`embla__dot${index === selectedIndex ? 'embla__dot--selected' : ''}`}
             />
           ))}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default EmblaCarousel
+export default EmblaCarousel;

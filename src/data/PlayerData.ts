@@ -3,7 +3,7 @@ import { Player } from '@/components/PlayerCarousel';
 // Import player images
 // Imperium FC player images
 import imperiumPlayer1 from '../images/playercards/adrianstory.png';
-import imperiumPlayer2 from "../images/playercards/alexstory.png";
+import imperiumPlayer2 from '../images/playercards/alexstory.png';
 import imperiumPlayer3 from '../images/playercards/calumstory.png'; // Fixed: playerscards -> playercards
 import imperiumPlayer4 from '../images/playercards/davidstory.png';
 import imperiumPlayer5 from '../images/playercards/diegostory.png';
@@ -38,39 +38,39 @@ import invictusPlayer13 from '../images/playercards/ricardo-story.png';
 import invictusPlayer14 from '../images/playercards/vinicius-story.png';
 
 export const IMPERIUM_PLAYERS: Player[] = [
-  { name: "", position: "", image: imperiumPlayer1 },
-  { name: "", position: "", image: imperiumPlayer2 },
-  { name: "", position: "", image: imperiumPlayer3 },
-  { name: "", position: "", image: imperiumPlayer4 },
-  { name: "", position: "", image: imperiumPlayer5 },
-  { name: "", position: "", image: imperiumPlayer6 },
-  { name: "", position: "", image: imperiumPlayer7 },
-  { name: "", position: "", image: imperiumPlayer8 },
-  { name: "", position: "", image: imperiumPlayer9 },
-  { name: "", position: "", image: imperiumPlayer10 },
-  { name: "", position: "", image: imperiumPlayer11 },
-  { name: "", position: "", image: imperiumPlayer12 },
-  { name: "", position: "", image: imperiumPlayer13 },
-  { name: "", position: "", image: imperiumPlayer14 },
-  { name: "", position: "", image: imperiumPlayer15 },
-  { name: "", position: "", image: imperiumPlayer16 },
-  { name: "", position: "", image: imperiumPlayer17 },
-  { name: "", position: "", image: imperiumPlayer18 }
+  { name: '', position: '', image: imperiumPlayer1 },
+  { name: '', position: '', image: imperiumPlayer2 },
+  { name: '', position: '', image: imperiumPlayer3 },
+  { name: '', position: '', image: imperiumPlayer4 },
+  { name: '', position: '', image: imperiumPlayer5 },
+  { name: '', position: '', image: imperiumPlayer6 },
+  { name: '', position: '', image: imperiumPlayer7 },
+  { name: '', position: '', image: imperiumPlayer8 },
+  { name: '', position: '', image: imperiumPlayer9 },
+  { name: '', position: '', image: imperiumPlayer10 },
+  { name: '', position: '', image: imperiumPlayer11 },
+  { name: '', position: '', image: imperiumPlayer12 },
+  { name: '', position: '', image: imperiumPlayer13 },
+  { name: '', position: '', image: imperiumPlayer14 },
+  { name: '', position: '', image: imperiumPlayer15 },
+  { name: '', position: '', image: imperiumPlayer16 },
+  { name: '', position: '', image: imperiumPlayer17 },
+  { name: '', position: '', image: imperiumPlayer18 },
 ];
 
 export const INVICTUS_PLAYERS: Player[] = [
-  { name: "", position: "", image: invictusPlayer1 },
-  { name: "", position: "", image: invictusPlayer2 },
-  { name: "", position: "", image: invictusPlayer3 },
-  { name: "", position: "", image: invictusPlayer4 },
-  { name: "", position: "", image: invictusPlayer5 },
-  { name: "", position: "", image: invictusPlayer6 },
-  { name: "", position: "", image: invictusPlayer7 },
-  { name: "", position: "", image: invictusPlayer8 },
-  { name: "", position: "", image: invictusPlayer9 },
-  { name: "", position: "", image: invictusPlayer10 },
-  { name: "", position: "", image: invictusPlayer11 },
-  { name: "", position: "", image: invictusPlayer12 },
-  { name: "", position: "", image: invictusPlayer13 },
-  { name: "", position: "", image: invictusPlayer14 }
+  { name: '', position: '', image: invictusPlayer1 },
+  { name: '', position: '', image: invictusPlayer2 },
+  { name: '', position: '', image: invictusPlayer3 },
+  { name: '', position: '', image: invictusPlayer4 },
+  { name: '', position: '', image: invictusPlayer5 },
+  { name: '', position: '', image: invictusPlayer6 },
+  { name: '', position: '', image: invictusPlayer7 },
+  { name: '', position: '', image: invictusPlayer8 },
+  { name: '', position: '', image: invictusPlayer9 },
+  { name: '', position: '', image: invictusPlayer10 },
+  { name: '', position: '', image: invictusPlayer11 },
+  { name: '', position: '', image: invictusPlayer12 },
+  { name: '', position: '', image: invictusPlayer13 },
+  { name: '', position: '', image: invictusPlayer14 },
 ];

@@ -1,0 +1,93 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setIsLoading(false)
+      
+      if (!user) {
+        router.push('/login')
+      }
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null)
+        if (!session?.user) {
+          router.push('/login')
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [router])
+
+  const handleLogout = async () => {
+    if (confirm('Are you sure you want to logout?')) {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      // The auth state change will handle the redirect
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-penn-red"></div>
+          <span className="text-text-primary">Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null // Will redirect to login
+  }
+
+  return (
+    <div className="bg-background min-h-screen">
+      <nav className="bg-contrast border-b border-gray-200 shadow-sm dark:border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-text-primary text-xl font-semibold">
+              Empire Football Group Admin
+            </h1>
+            <div className="flex items-center gap-4">
+              <p className="text-text-secondary hidden sm:block">
+                Welcome, {user.email}
+              </p>
+              <button 
+                onClick={handleLogout}
+                className="bg-penn-red hover:bg-lighter-red rounded-md px-4 py-2 text-sm text-white transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main className="container mx-auto px-4 py-8">
+        {children}
+      </main>
+    </div>
+  )
+}

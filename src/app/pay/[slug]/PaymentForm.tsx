@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { processPayment } from '@/app/actions/payment-actions'
 import { PaymentCollection } from '@/types/database'
+import { getClientEnvironment } from '@/lib/env-validation'
 
 interface PaymentFormProps {
   collection: PaymentCollection
@@ -29,9 +30,12 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
   const [success, setSuccess] = useState(false)
   const [paymentResult, setPaymentResult] = useState<any>(null)
   const [squareInitialized, setSquareInitialized] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(true)
+  const [initializationError, setInitializationError] = useState<string>('')
   
   const cardRef = useRef<any>(null)
   const paymentsRef = useRef<any>(null)
+  const cardContainerRef = useRef<HTMLDivElement>(null)
 
   const finalAmount = useCustomAmount ? parseFloat(customAmount) || 0 : amount
   const isFormValid = finalAmount >= 1 && payerName.trim() && payerEmail.trim()
@@ -39,29 +43,139 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
   // Initialize Square Web Payments SDK
   useEffect(() => {
     const initializeSquare = async () => {
-      if (typeof window !== 'undefined' && window.Square) {
-        try {
-          const payments = window.Square.payments(
-            process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID,
-            process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
-          )
+      try {
+        // Get environment variables
+        const env = getClientEnvironment()
+        
+        console.log('Environment variables check:', {
+          hasSquareAppId: !!env.NEXT_PUBLIC_SQUARE_APPLICATION_ID,
+          squareAppIdLength: env.NEXT_PUBLIC_SQUARE_APPLICATION_ID?.length || 0,
+          hasSquareLocationId: !!env.NEXT_PUBLIC_SQUARE_LOCATION_ID,
+          squareLocationIdLength: env.NEXT_PUBLIC_SQUARE_LOCATION_ID?.length || 0,
+        })
+
+        // Check if required Square variables exist
+        if (!env.NEXT_PUBLIC_SQUARE_APPLICATION_ID || !env.NEXT_PUBLIC_SQUARE_LOCATION_ID) {
+          const missing = []
+          if (!env.NEXT_PUBLIC_SQUARE_APPLICATION_ID) missing.push('NEXT_PUBLIC_SQUARE_APPLICATION_ID')
+          if (!env.NEXT_PUBLIC_SQUARE_LOCATION_ID) missing.push('NEXT_PUBLIC_SQUARE_LOCATION_ID')
           
-          paymentsRef.current = payments
-          
-          const card = await payments.card()
-          await card.attach('#card-container')
-          
-          cardRef.current = card
-          setSquareInitialized(true)
-        } catch (error) {
-          console.error('Failed to initialize Square:', error)
-          setError('Failed to load payment form. Please refresh the page.')
+          throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
         }
+
+        // Check if Square SDK is loaded
+        if (typeof window === 'undefined' || !window.Square) {
+          throw new Error('Square SDK not loaded')
+        }
+
+        // Check if the card container element exists
+        const cardContainer = document.getElementById('card-container')
+        if (!cardContainer) {
+          throw new Error('The element #card-container was not found')
+        }
+
+        console.log('Card container found, initializing Square...')
+        console.log('Initializing Square with:', {
+          applicationId: env.NEXT_PUBLIC_SQUARE_APPLICATION_ID.substring(0, 20) + '...',
+          locationId: env.NEXT_PUBLIC_SQUARE_LOCATION_ID.substring(0, 10) + '...'
+        })
+
+        const payments = window.Square.payments(
+          env.NEXT_PUBLIC_SQUARE_APPLICATION_ID,
+          env.NEXT_PUBLIC_SQUARE_LOCATION_ID
+        )
+        
+        paymentsRef.current = payments
+        
+        const card = await payments.card({
+          style: {
+            input: {
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              color: '#374151',
+            },
+            '.input-container': {
+              borderRadius: '6px',
+              borderColor: '#D1D5DB',
+            },
+            '.input-container.is-focus': {
+              borderColor: '#9F1315',
+            },
+            '.input-container.is-error': {
+              borderColor: '#EF4444',
+            },
+          }
+        })
+        
+        await card.attach('#card-container')
+        
+        cardRef.current = card
+        setSquareInitialized(true)
+        setError('')
+        setInitializationError('')
+        console.log('Square initialized successfully')
+        
+      } catch (error) {
+        console.error('Failed to initialize Square:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        setInitializationError(errorMessage)
+        
+        if (errorMessage.includes('Missing required environment variables')) {
+          setError(`Configuration error: ${errorMessage}. Please contact support.`)
+        } else if (errorMessage.includes('#card-container was not found')) {
+          setError('Payment form container not ready. Please try again.')
+        } else {
+          setError('Failed to load payment form. Please refresh the page and try again.')
+        }
+      } finally {
+        setIsInitializing(false)
       }
     }
 
-    // Wait a bit for Square script to load
-    const timer = setTimeout(initializeSquare, 100)
+    // Wait for both Square SDK and DOM to be ready
+    let attempts = 0
+    const maxAttempts = 10
+    
+    const tryInitialize = () => {
+      attempts++
+      console.log(`Square initialization attempt ${attempts}/${maxAttempts}`)
+      
+      // Check if Square SDK is available
+      if (typeof window === 'undefined' || !window.Square) {
+        console.log('Square SDK not ready, retrying...')
+        if (attempts < maxAttempts) {
+          setTimeout(tryInitialize, 1000)
+        } else {
+          console.error('Square SDK failed to load after maximum attempts')
+          setError('Payment system could not load. Please refresh the page.')
+          setInitializationError('Square SDK failed to load')
+          setIsInitializing(false)
+        }
+        return
+      }
+
+      // Check if the card container element exists
+      const cardContainer = document.getElementById('card-container')
+      if (!cardContainer) {
+        console.log('Card container not ready, retrying...')
+        if (attempts < maxAttempts) {
+          setTimeout(tryInitialize, 500)
+        } else {
+          console.error('Card container failed to render after maximum attempts')
+          setError('Payment form could not initialize. Please refresh the page.')
+          setInitializationError('Card container element not found')
+          setIsInitializing(false)
+        }
+        return
+      }
+
+      // Both Square SDK and card container are ready
+      console.log('Square SDK and card container both ready, initializing...')
+      initializeSquare()
+    }
+
+    // Start trying to initialize after a short delay
+    const timer = setTimeout(tryInitialize, 1000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -109,6 +223,65 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
     }
   }
 
+  const handleRetryInitialization = () => {
+    setIsInitializing(true)
+    setInitializationError('')
+    setError('')
+    setSquareInitialized(false)
+    // Force a page reload to restart everything cleanly
+    window.location.reload()
+  }
+
+  // Show loading state while initializing
+  if (isInitializing) {
+    return (
+      <div className="bg-contrast rounded-lg border border-gray-200 p-8 text-center shadow-sm dark:border-gray-700">
+        <div className="flex items-center justify-center space-x-2 mb-4">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-penn-red"></div>
+          <span className="text-text-primary">Loading payment form...</span>
+        </div>
+        <p className="text-text-secondary text-sm">
+          Setting up secure payment processing
+        </p>
+        <p className="text-text-muted text-xs mt-2">
+          This may take a few seconds
+        </p>
+        
+        {/* Render the card container early so it's available when Square tries to attach */}
+        <div className="hidden">
+          <div id="card-container"></div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state if initialization failed
+  if (initializationError && !squareInitialized) {
+    return (
+      <div className="bg-contrast rounded-lg border border-gray-200 p-8 text-center shadow-sm dark:border-gray-700">
+        <div className="text-red-600 text-4xl mb-4">⚠️</div>
+        <h2 className="text-text-primary text-xl font-bold mb-4">
+          Payment System Unavailable
+        </h2>
+        <div className="text-left bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+          <p className="text-red-800 text-sm font-medium mb-2">Error Details:</p>
+          <p className="text-red-700 text-sm">{initializationError}</p>
+        </div>
+        <div className="space-y-2 mb-4">
+          <button
+            onClick={handleRetryInitialization}
+            className="bg-penn-red hover:bg-lighter-red text-white px-6 py-2 rounded-md transition-colors mr-2"
+          >
+            Try Again
+          </button>
+        </div>
+        <p className="text-text-muted text-xs">
+          If this problem persists, please contact support
+        </p>
+      </div>
+    )
+  }
+
   if (success && paymentResult) {
     return (
       <div className="bg-contrast rounded-lg border border-gray-200 p-8 text-center shadow-sm dark:border-gray-700">
@@ -146,6 +319,15 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
   return (
     <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
       <h2 className="text-text-primary text-xl font-bold mb-6">Make a Payment</h2>
+      
+      {/* Development info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+          <p className="text-blue-800 text-xs">
+            Debug: Square initialized: {squareInitialized ? 'Yes' : 'No'}
+          </p>
+        </div>
+      )}
       
       {/* Amount Selection */}
       <div className="mb-6">
@@ -260,10 +442,18 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
         </label>
         <div 
           id="card-container" 
-          className="min-h-[60px] border border-gray-300 rounded-md p-2"
+          ref={cardContainerRef}
+          className="min-h-[60px] border border-gray-300 rounded-md p-2 bg-white"
         ></div>
-        {!squareInitialized && (
-          <p className="text-text-muted text-sm mt-1">Loading payment form...</p>
+        {!squareInitialized && !isInitializing && (
+          <p className="text-text-muted text-sm mt-1">
+            Payment form not ready. Please refresh the page.
+          </p>
+        )}
+        {squareInitialized && (
+          <p className="text-green-600 text-sm mt-1">
+            ✓ Secure payment form ready
+          </p>
         )}
       </div>
 
@@ -306,6 +496,12 @@ export default function PaymentForm({ collection }: PaymentFormProps) {
       {!isFormValid && (
         <p className="text-text-muted text-sm text-center mt-2">
           {finalAmount < 1 ? 'Enter amount of $1.00 or more' : 'Complete all required fields to continue'}
+        </p>
+      )}
+
+      {!squareInitialized && !isProcessing && !isInitializing && (
+        <p className="text-text-muted text-sm text-center mt-2">
+          Payment form failed to load. Please try again.
         </p>
       )}
     </div>

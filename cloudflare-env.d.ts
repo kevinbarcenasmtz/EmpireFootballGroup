@@ -3,13 +3,17 @@
 // by running `wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts`
 
 interface CloudflareEnv {
-    // Square Integration Environment Variables
-    SQUARE_APPLICATION_ID: string;
-    SQUARE_ACCESS_TOKEN: string;
-    SQUARE_ENVIRONMENT: "sandbox" | "production";
-    SQUARE_LOCATION_ID: string;
-    
-    // Your existing Supabase environment variables (if any)
-    NEXT_PUBLIC_SUPABASE_URL: string;
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
-  }
+  // Square Integration Environment Variables
+  SQUARE_APPLICATION_ID: string;
+  SQUARE_ACCESS_TOKEN: string;
+  SQUARE_ENVIRONMENT: "sandbox" | "production";
+  SQUARE_LOCATION_ID: string;
+  
+  // Client-side Square variables (these will be NEXT_PUBLIC_ prefixed)
+  NEXT_PUBLIC_SQUARE_APPLICATION_ID: string;
+  NEXT_PUBLIC_SQUARE_LOCATION_ID: string;
+  
+  // Your existing Supabase environment variables
+  NEXT_PUBLIC_SUPABASE_URL: string;
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
+}

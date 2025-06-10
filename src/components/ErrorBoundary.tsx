@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </h2>
           <div className="text-left bg-red-50 border border-red-200 rounded-md p-4 mb-4">
             <p className="text-red-800 text-sm font-medium mb-2">Error Details:</p>
-            <p className="text-red-700 text-sm font-mono text-xs">
+            <p className="text-red-700 text-sm font-mono">
               {this.state.error?.message || 'Unknown error occurred'}
             </p>
           </div>

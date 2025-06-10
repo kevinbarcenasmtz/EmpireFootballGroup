@@ -32,7 +32,7 @@ export default async function CollectionsPage() {
             Payment Collections
           </h1>
           <p className="text-text-secondary mt-1 text-sm sm:text-base">
-            Manage your team's payment collections
+            Manage your team's payment collections • Real-time updates enabled
           </p>
         </div>
         <div className="flex-shrink-0">
@@ -49,7 +49,11 @@ export default async function CollectionsPage() {
       {collections && collections.length > 0 ? (
         <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {collections.map((collection) => (
-            <CollectionCard key={collection.id} collection={collection} />
+            <CollectionCard 
+              key={collection.id} 
+              collection={collection} 
+              userId={user.id}
+            />
           ))}
         </div>
       ) : (
@@ -58,7 +62,7 @@ export default async function CollectionsPage() {
             No collections yet
           </h3>
           <p className="text-text-secondary mb-4 sm:mb-6 text-sm sm:text-base">
-            Create your first payment collection to get started
+            Create your first payment collection to get started with real-time updates
           </p>
           <Link
             href="/admin/collections/new"

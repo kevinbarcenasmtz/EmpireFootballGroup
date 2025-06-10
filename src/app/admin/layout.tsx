@@ -1,16 +1,66 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+'use client'
 
-export default async function AdminLayout({
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
+
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.getUser()
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
-  if (error || !data?.user) {
-    redirect('/login')
+  useEffect(() => {
+    const supabase = createClient()
+    
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setIsLoading(false)
+      
+      if (!user) {
+        router.push('/login')
+      }
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null)
+        if (!session?.user) {
+          router.push('/login')
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [router])
+
+  const handleLogout = async () => {
+    if (confirm('Are you sure you want to logout?')) {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      // The auth state change will handle the redirect
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-penn-red"></div>
+          <span className="text-text-primary">Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null // Will redirect to login
   }
 
   return (
@@ -22,15 +72,15 @@ export default async function AdminLayout({
               Empire Football Group Admin
             </h1>
             <div className="flex items-center gap-4">
-              <p className="text-text-secondary">Welcome, {data.user.email}</p>
-              <form action="/auth/signout" method="post">
-                <button 
-                  type="submit"
-                  className="bg-penn-red hover:bg-lighter-red rounded-md px-4 py-2 text-sm text-white transition-colors"
-                >
-                  Logout
-                </button>
-              </form>
+              <p className="text-text-secondary hidden sm:block">
+                Welcome, {user.email}
+              </p>
+              <button 
+                onClick={handleLogout}
+                className="bg-penn-red hover:bg-lighter-red rounded-md px-4 py-2 text-sm text-white transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>

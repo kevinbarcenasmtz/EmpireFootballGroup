@@ -32,10 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Square Web Payments SDK - dynamically determined by environment */}
-        <Script
-          src={squareSDKUrl}
-          strategy="beforeInteractive"
-        />
+        <Script src={squareSDKUrl} strategy="beforeInteractive" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Navbar />

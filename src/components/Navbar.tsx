@@ -1,30 +1,31 @@
 'use client';
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import empirelogo from '../images/logos/empirefootballgrouplogo.png';
-import { createClient } from '@/utils/supabase/client'
-import type { User } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
 
-
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
     };
 
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);

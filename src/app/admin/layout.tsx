@@ -3,19 +3,20 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import type { User } from '@supabase/supabase-js'
 
-export default function AdminLayout({
-  children,
-}: {
+interface AdminLayoutProps {
   children: React.ReactNode
-}) {
-  const [user, setUser] = useState<any>(null)
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     const supabase = createClient()
-    
+
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -28,14 +29,13 @@ export default function AdminLayout({
 
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null)
-        if (!session?.user) {
-          router.push('/login')
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+      
+      if (!session?.user) {
+        router.push('/login')
       }
-    )
+    })
 
     return () => subscription.unsubscribe()
   }, [router])
@@ -52,7 +52,7 @@ export default function AdminLayout({
     return (
       <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-penn-red"></div>
+          <div className="border-penn-red h-6 w-6 animate-spin rounded-full border-b-2"></div>
           <span className="text-text-primary">Loading...</span>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function AdminLayout({
               <p className="text-text-secondary hidden sm:block">
                 Welcome, {user.email}
               </p>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="bg-penn-red hover:bg-lighter-red rounded-md px-4 py-2 text-sm text-white transition-colors"
               >

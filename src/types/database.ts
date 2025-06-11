@@ -9,7 +9,7 @@ export interface PaymentCollection {
   current_amount: number;
   slug: string;
   is_active: boolean;
-  settings?: Record<string, any>;
+  settings?: Record<string, never>;
 }
 
 export interface Payment {
@@ -22,7 +22,7 @@ export interface Payment {
   payer_email?: string;
   payer_name?: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, never>;
 }
 
 export interface Database {

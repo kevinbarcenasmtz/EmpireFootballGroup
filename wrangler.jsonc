@@ -6,17 +6,17 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
-    "directory": ".open-next/assets"
+    "directory": ".open-next/assets",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
-  
+
   // Environment Variables - Add this section
   "vars": {
-    "SQUARE_ENVIRONMENT": "sandbox"
-  }
-  
+    "SQUARE_ENVIRONMENT": "sandbox",
+  },
+
   // Note: Don't put sensitive values here! Use secrets instead
   // Use wrangler secret put for: SQUARE_ACCESS_TOKEN
   // Use Cloudflare Pages dashboard for: NEXT_PUBLIC_* variables

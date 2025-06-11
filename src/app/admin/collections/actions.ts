@@ -1,18 +1,29 @@
-'use server'
+'use server';
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
-import { createCollectionSchema, generateSlug } from '@/lib/validations/collections'
+import { revalidatePath } from 'next/cache';
+import { createClient } from '@/utils/supabase/server';
+import { createCollectionSchema, generateSlug } from '@/lib/validations/collections';
+import { PaymentCollection } from '@/types/database';
 
-export async function createCollection(formData: FormData) {
+interface ActionResult<T = unknown> {
+  success?: boolean;
+  error?: string;
+  collection?: T;
+}
+
+export async function createCollection(
+  formData: FormData
+): Promise<ActionResult<PaymentCollection>> {
   try {
-    const supabase = await createClient()
-    
+    const supabase = await createClient();
+
     // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
     if (authError || !user) {
-      return { error: 'You must be logged in to create a collection' }
+      return { error: 'You must be logged in to create a collection' };
     }
 
     // Validate form data
@@ -20,13 +31,13 @@ export async function createCollection(formData: FormData) {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       target_amount: formData.get('target_amount') as string,
-    }
+    };
 
-    const validatedData = createCollectionSchema.parse(rawData)
-    
+    const validatedData = createCollectionSchema.parse(rawData);
+
     // Generate unique slug
-    const slug = generateSlug(validatedData.title)
-    
+    const slug = generateSlug(validatedData.title);
+
     // Insert into database
     const { data, error } = await supabase
       .from('payment_collections')
@@ -39,60 +50,58 @@ export async function createCollection(formData: FormData) {
         is_active: true,
       })
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Database error:', error)
-      return { error: 'Failed to create collection. Please try again.' }
+      console.error('Database error:', error);
+      return { error: 'Failed to create collection. Please try again.' };
     }
 
-    revalidatePath('/admin/collections')
-    return { success: true, collection: data }
-    
+    revalidatePath('/admin/collections');
+    return { success: true, collection: data };
   } catch (error) {
-    console.error('Create collection error:', error)
-    return { error: 'Failed to create collection. Please check your input.' }
+    console.error('Create collection error:', error);
+    return { error: 'Failed to create collection. Please check your input.' };
   }
 }
 
-export async function toggleCollectionStatus(id: string, isActive: boolean) {
+export async function toggleCollectionStatus(id: string, isActive: boolean): Promise<ActionResult> {
   try {
-    const supabase = await createClient()
-    
+    const supabase = await createClient();
+
     const { error } = await supabase
       .from('payment_collections')
       .update({ is_active: isActive })
-      .eq('id', id)
+      .eq('id', id);
 
     if (error) {
-      return { error: 'Failed to update collection status' }
+      console.error('Toggle collection status error:', error);
+      return { error: 'Failed to update collection status' };
     }
 
-    revalidatePath('/admin/collections')
-    return { success: true }
-    
+    revalidatePath('/admin/collections');
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to update collection status' }
+    console.error('Toggle collection status error:', error);
+    return { error: 'Failed to update collection status' };
   }
 }
 
-export async function deleteCollection(id: string) {
+export async function deleteCollection(id: string): Promise<ActionResult> {
   try {
-    const supabase = await createClient()
-    
-    const { error } = await supabase
-      .from('payment_collections')
-      .delete()
-      .eq('id', id)
+    const supabase = await createClient();
+
+    const { error } = await supabase.from('payment_collections').delete().eq('id', id);
 
     if (error) {
-      return { error: 'Failed to delete collection' }
+      console.error('Delete collection error:', error);
+      return { error: 'Failed to delete collection' };
     }
 
-    revalidatePath('/admin/collections')
-    return { success: true }
-    
+    revalidatePath('/admin/collections');
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to delete collection' }
+    console.error('Delete collection error:', error);
+    return { error: 'Failed to delete collection' };
   }
 }

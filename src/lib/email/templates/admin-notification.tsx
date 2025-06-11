@@ -1,24 +1,28 @@
-import { Payment, PaymentCollection } from '@/types/database'
-import { emailConfig } from '../resend-client'
+import { Payment, PaymentCollection } from '@/types/database';
+import { emailConfig } from '../resend-client';
 
 interface AdminNotificationProps {
-  payment: Payment
-  collection: PaymentCollection
-  adminEmail: string
+  payment: Payment;
+  collection: PaymentCollection;
+  adminEmail: string;
 }
 
-export function generateAdminNotificationEmail({ payment, collection, adminEmail }: AdminNotificationProps) {
+export function generateAdminNotificationEmail({
+  payment,
+  collection,
+  adminEmail,
+}: AdminNotificationProps) {
   const paymentDate = new Date(payment.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
-  })
+    minute: '2-digit',
+  });
 
-  const collectionUrl = `${emailConfig.appUrl}/pay/${collection.slug}`
-  const adminDashboardUrl = `${emailConfig.appUrl}/admin/collections`
-  
+  const collectionUrl = `${emailConfig.appUrl}/pay/${collection.slug}`;
+  const adminDashboardUrl = `${emailConfig.appUrl}/admin/collections`;
+
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -196,7 +200,9 @@ export function generateAdminNotificationEmail({ payment, collection, adminEmail
       </h3>
       <p style="margin: 5px 0;"><strong>Collection:</strong> ${collection.title}</p>
       
-      ${collection.target_amount ? `
+      ${
+        collection.target_amount
+          ? `
         <div style="margin: 15px 0;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
             <span>Progress</span>
@@ -209,9 +215,11 @@ export function generateAdminNotificationEmail({ payment, collection, adminEmail
             $${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)} goal
           </p>
         </div>
-      ` : `
+      `
+          : `
         <p style="margin: 5px 0;"><strong>Total Raised:</strong> $${collection.current_amount.toFixed(2)}</p>
-      `}
+      `
+      }
       
       <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
         Status: ${collection.is_active ? '🟢 Active' : '🔴 Inactive'}
@@ -250,7 +258,7 @@ export function generateAdminNotificationEmail({ payment, collection, adminEmail
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 🎉 NEW PAYMENT RECEIVED - Empire Football Group
@@ -266,9 +274,10 @@ Payment ID: ${payment.id}
 Status: ${payment.status}
 
 COLLECTION SUMMARY:
-${collection.target_amount ? 
-  `Progress: $${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)} (${Math.round((collection.current_amount / collection.target_amount) * 100)}%)` :
-  `Total Raised: $${collection.current_amount.toFixed(2)}`
+${
+  collection.target_amount
+    ? `Progress: $${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)} (${Math.round((collection.current_amount / collection.target_amount) * 100)}%)`
+    : `Total Raised: $${collection.current_amount.toFixed(2)}`
 }
 Status: ${collection.is_active ? 'Active' : 'Inactive'}
 
@@ -279,7 +288,7 @@ Collection Page: ${collectionUrl}
 ---
 Empire Football Group Admin System
 Notification sent to: ${adminEmail}
-  `
+  `;
 
-  return { html, text }
+  return { html, text };
 }

@@ -1,23 +1,27 @@
-import { Payment, PaymentCollection } from '@/types/database'
-import { emailConfig } from '../resend-client'
+import { Payment, PaymentCollection } from '@/types/database';
+import { emailConfig } from '../resend-client';
 
 interface PaymentReceiptProps {
-  payment: Payment
-  collection: PaymentCollection
-  receiptUrl?: string
+  payment: Payment;
+  collection: PaymentCollection;
+  receiptUrl?: string;
 }
 
-export function generatePaymentReceiptEmail({ payment, collection, receiptUrl }: PaymentReceiptProps) {
+export function generatePaymentReceiptEmail({
+  payment,
+  collection,
+  receiptUrl,
+}: PaymentReceiptProps) {
   const paymentDate = new Date(payment.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
-  })
+    minute: '2-digit',
+  });
 
-  const collectionUrl = `${emailConfig.appUrl}/pay/${collection.slug}`
-  
+  const collectionUrl = `${emailConfig.appUrl}/pay/${collection.slug}`;
+
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -172,12 +176,16 @@ export function generatePaymentReceiptEmail({ payment, collection, receiptUrl }:
         <th>Status</th>
         <td style="color: #22c55e; font-weight: 600;">✓ Completed</td>
       </tr>
-      ${payment.square_payment_id ? `
+      ${
+        payment.square_payment_id
+          ? `
       <tr>
         <th>Transaction ID</th>
         <td style="font-family: monospace;">${payment.square_payment_id}</td>
       </tr>
-      ` : ''}
+      `
+          : ''
+      }
     </table>
 
     <div class="collection-info">
@@ -185,7 +193,9 @@ export function generatePaymentReceiptEmail({ payment, collection, receiptUrl }:
       <p style="margin: 5px 0;"><strong>Collection:</strong> ${collection.title}</p>
       ${collection.description ? `<p style="margin: 5px 0;"><strong>Description:</strong> ${collection.description}</p>` : ''}
       
-      ${collection.target_amount ? `
+      ${
+        collection.target_amount
+          ? `
         <p style="margin: 10px 0 5px 0;"><strong>Progress:</strong></p>
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${Math.min((collection.current_amount / collection.target_amount) * 100, 100)}%"></div>
@@ -194,17 +204,23 @@ export function generatePaymentReceiptEmail({ payment, collection, receiptUrl }:
           $${collection.current_amount.toFixed(2)} raised of $${collection.target_amount.toFixed(2)} goal
           (${Math.round((collection.current_amount / collection.target_amount) * 100)}%)
         </p>
-      ` : `
+      `
+          : `
         <p style="margin: 5px 0;"><strong>Total Raised:</strong> $${collection.current_amount.toFixed(2)}</p>
-      `}
+      `
+      }
     </div>
 
     <div style="text-align: center; margin: 30px 0;">
-      ${receiptUrl ? `
+      ${
+        receiptUrl
+          ? `
         <a href="${receiptUrl}" class="button" style="color: white;">
           View Square Receipt
         </a>
-      ` : ''}
+      `
+          : ''
+      }
       <a href="${collectionUrl}" class="button button-secondary" style="color: white;">
         View Collection
       </a>
@@ -241,7 +257,7 @@ export function generatePaymentReceiptEmail({ payment, collection, receiptUrl }:
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Payment Confirmation - Empire Football Group
@@ -256,9 +272,10 @@ Status: Completed
 Collection: ${collection.title}
 ${collection.description ? `Description: ${collection.description}` : ''}
 
-${collection.target_amount ? 
-  `Progress: $${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)} (${Math.round((collection.current_amount / collection.target_amount) * 100)}%)` :
-  `Total Raised: $${collection.current_amount.toFixed(2)}`
+${
+  collection.target_amount
+    ? `Progress: $${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)} (${Math.round((collection.current_amount / collection.target_amount) * 100)}%)`
+    : `Total Raised: $${collection.current_amount.toFixed(2)}`
 }
 
 View Collection: ${collectionUrl}
@@ -268,7 +285,7 @@ Thank you for supporting Empire Football Group!
 
 Questions? Contact us at ${emailConfig.supportEmail}
 Visit: ${emailConfig.appUrl}
-  `
+  `;
 
-  return { html, text }
+  return { html, text };
 }

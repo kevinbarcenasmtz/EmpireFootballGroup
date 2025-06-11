@@ -1,13 +1,26 @@
 // Token-based authentication utilities (Cloudflare Worker pattern)
-
 export interface TokenValidationResult {
     valid: boolean;
     user?: {
       id: string;
       email: string;
-      [key: string]: any;
+      [key: string]: unknown;
     };
     error?: string;
+  }
+  
+  /**
+   * Type guard to check if an object has the required user properties
+   */
+  function isValidUserObject(obj: unknown): obj is { id: string; email: string; [key: string]: unknown } {
+    return (
+      typeof obj === 'object' &&
+      obj !== null &&
+      'id' in obj &&
+      'email' in obj &&
+      typeof (obj as Record<string, unknown>).id === 'string' &&
+      typeof (obj as Record<string, unknown>).email === 'string'
+    );
   }
   
   /**
@@ -41,10 +54,19 @@ export interface TokenValidationResult {
         };
       }
   
-      const user = await response.json();
+      const userData: unknown = await response.json();
+      
+      // Validate the response has the expected structure
+      if (!isValidUserObject(userData)) {
+        return {
+          valid: false,
+          error: 'Invalid user data structure received from Supabase',
+        };
+      }
+  
       return {
         valid: true,
-        user,
+        user: userData,
       };
     } catch (error) {
       return {

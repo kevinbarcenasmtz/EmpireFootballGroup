@@ -1,5 +1,19 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Type guard to check if an object has the required user properties
+ */
+function isValidUserObject(obj: unknown): obj is { id: string; email: string; [key: string]: unknown } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'email' in obj &&
+    typeof (obj as Record<string, unknown>).id === 'string' &&
+    typeof (obj as Record<string, unknown>).email === 'string'
+  );
+}
+
 export async function middleware(request: NextRequest) {
   console.log('Middleware called for:', request.nextUrl.pathname);
 
@@ -63,13 +77,20 @@ async function validateAccessToken(request: NextRequest) {
       return redirectResponse;
     }
 
-    const user = await response.json();
-    console.log('Token validated for user:', user.email);
+    const userData: unknown = await response.json();
+    
+    // Validate the response has the expected user structure
+    if (!isValidUserObject(userData)) {
+      console.error('Invalid user data structure received from Supabase');
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    console.log('Token validated for user:', userData.email);
 
     // Add user info to request headers for downstream use
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', user.id);
-    requestHeaders.set('x-user-email', user.email);
+    requestHeaders.set('x-user-id', userData.id);
+    requestHeaders.set('x-user-email', userData.email);
 
     return NextResponse.next({
       request: {

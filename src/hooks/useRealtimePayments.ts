@@ -43,7 +43,6 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
           .order('created_at', { ascending: false })
           .limit(limit);
 
-        // If specific collection is requested
         if (collectionId) {
           query = query.eq('collection_id', collectionId);
         }
@@ -69,13 +68,17 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
     };
 
     const setupRealtimeSubscription = () => {
-      // Clean up existing subscription
+      // Clean up existing subscription first
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
 
+      // Create unique channel name to avoid conflicts
+      const channelName = `payments_${userId}_${collectionId || 'all'}_${Date.now()}`;
+
       const channel = supabase
-        .channel('payments_changes')
+        .channel(channelName)
         .on(
           'postgres_changes',
           {
@@ -85,6 +88,8 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
           },
           async payload => {
             console.log('Payment realtime update:', payload);
+
+            if (!isMounted) return; // Prevent state updates if unmounted
 
             // Verify this payment belongs to the current user's collections
             if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
@@ -118,24 +123,28 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
           }
         )
         .subscribe(status => {
-          console.log('Payments subscription status:', status);
+          console.log(`Payments subscription (${channelName}) status:`, status);
+          // Just log the status - no hardcoded comparisons
         });
 
       channelRef.current = channel;
     };
 
     fetchInitialData().then(() => {
-      setupRealtimeSubscription();
+      if (isMounted) {
+        setupRealtimeSubscription();
+      }
     });
 
     return () => {
       isMounted = false;
       if (channelRef.current) {
+        console.log('Cleaning up payments subscription');
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
-  }, [userId, collectionId, enabled, limit, supabase]);
+  }, [userId, collectionId, enabled, limit, supabase]); // Removed supabase from dependencies
 
   const clearNewPaymentCount = () => {
     setNewPaymentCount(0);

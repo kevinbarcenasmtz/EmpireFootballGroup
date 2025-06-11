@@ -53,13 +53,17 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
     };
 
     const setupRealtimeSubscription = () => {
-      // Clean up existing subscription
+      // Clean up existing subscription first
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
 
+      // Create unique channel name to avoid conflicts
+      const channelName = `payment_collections_${userId}_${Date.now()}`;
+      
       const channel = supabase
-        .channel('payment_collections_changes')
+        .channel(channelName)
         .on(
           'postgres_changes',
           {
@@ -70,6 +74,8 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
           },
           payload => {
             console.log('Collection realtime update:', payload);
+
+            if (!isMounted) return; // Prevent state updates if unmounted
 
             if (payload.eventType === 'INSERT') {
               const newCollection = payload.new as PaymentCollection;
@@ -88,24 +94,28 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
           }
         )
         .subscribe(status => {
-          console.log('Collections subscription status:', status);
+          console.log(`Collections subscription (${channelName}) status:`, status);
+          // Just log the status - no hardcoded comparisons
         });
 
       channelRef.current = channel;
     };
 
     fetchInitialData().then(() => {
-      setupRealtimeSubscription();
+      if (isMounted) {
+        setupRealtimeSubscription();
+      }
     });
 
     return () => {
       isMounted = false;
       if (channelRef.current) {
+        console.log('Cleaning up collections subscription');
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
-  }, [userId, enabled, supabase]);
+  }, [userId, enabled, supabase]); 
 
   const refreshCollections = async () => {
     if (!userId) return;

@@ -29,9 +29,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         setUser(user)
         
-        // Store access token in cookie for middleware (following Reddit pattern)
+        // Note: Cookie is now set server-side during login
+        // Only update cookie here if we get a new session (token refresh)
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.access_token) {
+          // Update cookie for any token refresh scenarios
           document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=strict`
         }
       } catch (error) {
@@ -52,7 +54,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         router.push('/login')
       } else if (session?.user) {
         setUser(session.user)
-        // Update access token cookie
+        // Update access token cookie on auth state changes (token refresh, etc.)
         if (session.access_token) {
           document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=strict`
         }
@@ -82,28 +84,26 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   if (!user) {
-    return null // Will redirect to login
+    return null // Will redirect via useEffect
   }
 
   return (
     <div className="bg-background min-h-screen">
-      <nav className="bg-contrast border-b border-gray-200 shadow-sm dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-text-primary text-xl font-semibold">
-              Empire Football Group Admin
-            </h1>
-            <div className="flex items-center gap-4">
-              <p className="text-text-secondary hidden sm:block">
-                Welcome, {user.email}
-              </p>
-              <button
-                onClick={handleLogout}
-                className="bg-penn-red hover:bg-lighter-red rounded-md px-4 py-2 text-sm text-white transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+      <nav className="bg-contrast border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between">
+          <h1 className="text-text-primary text-xl font-semibold">
+            Empire Admin Dashboard
+          </h1>
+          <div className="flex items-center space-x-4">
+            <span className="text-text-secondary text-sm">
+              {user.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-penn-red hover:bg-red-600 rounded px-3 py-1 text-sm text-white transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </nav>

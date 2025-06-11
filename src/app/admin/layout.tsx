@@ -18,22 +18,44 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const supabase = createClient()
 
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setIsLoading(false)
-      
-      if (!user) {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        
+        if (error || !user) {
+          console.log('No valid user session, redirecting to login')
+          router.push('/login')
+          return
+        }
+
+        setUser(user)
+        
+        // Store access token in cookie for middleware (following Reddit pattern)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.access_token) {
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=strict`
+        }
+      } catch (error) {
+        console.error('Auth error:', error)
         router.push('/login')
+      } finally {
+        setIsLoading(false)
       }
     }
 
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-      
-      if (!session?.user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session?.user) {
+        // Clear access token cookie
+        document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        setUser(null)
         router.push('/login')
+      } else if (session?.user) {
+        setUser(session.user)
+        // Update access token cookie
+        if (session.access_token) {
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=strict`
+        }
       }
     })
 
@@ -44,7 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (confirm('Are you sure you want to logout?')) {
       const supabase = createClient()
       await supabase.auth.signOut()
-      // The auth state change will handle the redirect
+      // The auth state change will handle cleanup and redirect
     }
   }
 

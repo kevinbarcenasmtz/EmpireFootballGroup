@@ -13,6 +13,7 @@ export interface ServerEnvVars {
   SQUARE_ACCESS_TOKEN: string;
   SQUARE_ENVIRONMENT: 'sandbox' | 'production';
   SQUARE_LOCATION_ID: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
 export interface EmailEnvVars {
@@ -83,7 +84,7 @@ export function validateServerEnvironment(): ServerEnvVars {
   const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN;
   const squareEnvironment = process.env.SQUARE_ENVIRONMENT;
   const squareLocationId = process.env.SQUARE_LOCATION_ID;
-
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!squareAccessToken) {
     missingVars.push('SQUARE_ACCESS_TOKEN');
   }
@@ -96,6 +97,10 @@ export function validateServerEnvironment(): ServerEnvVars {
 
   if (!squareLocationId) {
     missingVars.push('SQUARE_LOCATION_ID');
+  }
+
+  if (!supabaseServiceRoleKey) {
+    missingVars.push('SUPABASE_SERVICE_ROLE_KEY');
   }
 
   if (missingVars.length > 0) {
@@ -125,6 +130,7 @@ export function validateServerEnvironment(): ServerEnvVars {
     SQUARE_ACCESS_TOKEN: squareAccessToken!,
     SQUARE_ENVIRONMENT: squareEnvironment as 'sandbox' | 'production',
     SQUARE_LOCATION_ID: squareLocationId!,
+    SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKey!,
   };
 }
 

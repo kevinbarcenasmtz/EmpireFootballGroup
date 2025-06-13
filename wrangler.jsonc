@@ -12,12 +12,26 @@
     "enabled": true,
   },
 
-  // Environment Variables - Add this section
+  // Environment Variables - Non-sensitive configuration
   "vars": {
     "SQUARE_ENVIRONMENT": "production",
   },
 
-  // Note: Don't put sensitive values here! Use secrets instead
-  // Use wrangler secret put for: SQUARE_ACCESS_TOKEN
-  // Use Cloudflare Pages dashboard for: NEXT_PUBLIC_* variables
+  // Note: Sensitive values are stored as Secrets in Cloudflare Workers Dashboard:
+  // 
+  // REQUIRED SECRETS (Add these via Cloudflare Dashboard → Settings → Variables → Secrets):
+  // - SQUARE_ACCESS_TOKEN              (Square payment processing)
+  // - SQUARE_APPLICATION_ID            (Square app configuration) 
+  // - SQUARE_LOCATION_ID               (Square business location)
+  // - SUPABASE_SERVICE_ROLE_KEY        (Database operations - bypasses RLS)
+  // - RESEND_API_KEY                   (Email notifications)
+  // - ADMIN_EMAIL                      (Admin notification recipient)
+  // - FROM_EMAIL                       (Email sender address)
+  //
+  // REQUIRED ENVIRONMENT VARIABLES (Add these via Cloudflare Dashboard → Settings → Variables):
+  // - NEXT_PUBLIC_SQUARE_APPLICATION_ID (Client-side Square integration)
+  // - NEXT_PUBLIC_SQUARE_LOCATION_ID    (Client-side Square configuration)
+  // - NEXT_PUBLIC_SUPABASE_URL          (Client-side database connection)
+  // - NEXT_PUBLIC_SUPABASE_ANON_KEY     (Client-side database access)
+  // - NEXT_PUBLIC_APP_URL               (Application base URL)
 }

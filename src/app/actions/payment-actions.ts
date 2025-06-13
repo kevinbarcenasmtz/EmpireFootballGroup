@@ -3,6 +3,7 @@
 
 import { randomUUID } from 'crypto';
 import { createClient } from '@/utils/supabase/server';
+import { createServiceClient } from '@/utils/supabase/service'; // NEW: Import service client
 import { revalidatePath } from 'next/cache';
 import { validateServerEnvironment, EnvironmentError } from '@/lib/env-validation';
 import { getSquareErrorMessage, logSquareError } from '@/lib/square-errors';
@@ -51,9 +52,13 @@ export async function processPayment(formData: FormData) {
         env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox,
     });
 
+    // Use regular client for reading collection (this is public access)
     const supabase = await createClient();
+    
+    // Create service client for database writes (bypasses RLS)
+    const serviceSupabase = createServiceClient();
 
-    // Get collection details
+    // Get collection details using regular client (public read access)
     const { data: collection, error: collectionError } = await supabase
       .from('payment_collections')
       .select('*')
@@ -90,8 +95,8 @@ export async function processPayment(formData: FormData) {
       environment: env.SQUARE_ENVIRONMENT,
     });
 
-    // Store payment in database
-    const { data: payment, error: paymentError } = await supabase
+    // STEP 3: Store payment in database using SERVICE CLIENT (bypasses RLS)
+    const { data: payment, error: paymentError } = await serviceSupabase
       .from('payments')
       .insert({
         collection_id: collection.id,
@@ -116,8 +121,8 @@ export async function processPayment(formData: FormData) {
       };
     }
 
-    // Update collection current_amount atomically
-    const { error: updateError } = await supabase
+    // STEP 4: Update collection current_amount using SERVICE CLIENT (bypasses RLS)
+    const { error: updateError } = await serviceSupabase
       .from('payment_collections')
       .update({
         current_amount: collection.current_amount + amount,

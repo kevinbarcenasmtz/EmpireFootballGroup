@@ -13,9 +13,10 @@ interface CloudflareEnv {
   NEXT_PUBLIC_SQUARE_APPLICATION_ID: string;
   NEXT_PUBLIC_SQUARE_LOCATION_ID: string;
 
-  // Your existing Supabase environment variables
+  // Supabase Environment Variables
   NEXT_PUBLIC_SUPABASE_URL: string;
   NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
 
   // Email System Environment Variables
   RESEND_API_KEY: string;

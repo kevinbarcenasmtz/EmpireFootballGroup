@@ -17,7 +17,7 @@ BigInt.prototype.toJSON = function () {
 export function createSquareClient(env?: CloudflareEnv) {
   const token = env?.SQUARE_ACCESS_TOKEN || process.env.SQUARE_ACCESS_TOKEN;
   const environment = env?.SQUARE_ENVIRONMENT || process.env.SQUARE_ENVIRONMENT || 'sandbox';
-  
+
   if (!token) {
     throw new Error('SQUARE_ACCESS_TOKEN is required');
   }

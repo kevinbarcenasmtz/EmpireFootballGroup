@@ -80,7 +80,7 @@ export async function toggleCollectionStatus(id: string, isActive: boolean): Pro
     }
 
     const supabase = await createClient();
-    
+
     // Ensure user can only modify their own collections
     const { error } = await supabase
       .from('payment_collections')
@@ -112,7 +112,7 @@ export async function deleteCollection(id: string): Promise<ActionResult> {
     }
 
     const supabase = await createClient();
-    
+
     // Ensure user can only delete their own collections
     const { error } = await supabase
       .from('payment_collections')

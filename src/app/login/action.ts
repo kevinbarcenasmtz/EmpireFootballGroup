@@ -21,8 +21,11 @@ export async function login(formData: FormData) {
   }
 
   // Get the session after successful login
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
   if (sessionError || !session?.access_token) {
     console.error('Session retrieval error:', sessionError);
     return { error: 'Login failed - please try again' };
@@ -35,7 +38,7 @@ export async function login(formData: FormData) {
     maxAge: 3600, // 1 hour
     httpOnly: false, // Needs to be accessible to client-side for refresh
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    sameSite: 'strict',
   });
 
   console.log('Login successful, cookie set for user:', session.user.email);

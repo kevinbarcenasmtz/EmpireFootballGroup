@@ -1,47 +1,24 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
-import { useRealtimeCollections } from '@/hooks/useRealtimeCollections'
-import { useRealtimePayments } from '@/hooks/useRealtimePayments'
-import { useRealtimeStats } from '@/hooks/useRealtimeStats'
-import { PaymentNotificationManager } from '@/components/PaymentNotificationManager'
-import type { User } from '@supabase/supabase-js'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
+import Link from 'next/link';
+import { useRealtimeCollections } from '@/hooks/useRealtimeCollections';
+import { useRealtimePayments } from '@/hooks/useRealtimePayments';
+import { useRealtimeStats } from '@/hooks/useRealtimeStats';
+import { PaymentNotificationManager } from '@/components/PaymentNotificationManager';
+import { Payment } from '@/types/database'; // Adjust path as needed
 
-interface Payment {
-  id: string
-  amount: number
-  payer_name?: string
-  created_at: string
-  status: string
-}
-
-interface Collection {
-  id: string
-  title: string
-  current_amount: number
-  target_amount?: number
-  is_active: boolean
-}
-
-type ConnectionStatus = 'connected' | 'connecting'
+type ConnectionStatus = 'connected' | 'connecting';
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loginTime] = useState(new Date().toLocaleString())
-  const [lastActivity, setLastActivity] = useState<string>('')
-
-  const supabase = createClient()
-
-  // Get current user
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    getUser()
-  }, [supabase])
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loginTime] = useState(new Date().toLocaleTimeString());
+  const [lastActivity, setLastActivity] = useState<string>('');
+  const router = useRouter();
 
   // Real-time hooks
   const {
@@ -52,7 +29,7 @@ export default function AdminDashboard() {
   } = useRealtimeCollections({
     userId: user?.id,
     enabled: !!user?.id,
-  })
+  });
 
   const {
     payments,
@@ -64,88 +41,138 @@ export default function AdminDashboard() {
     userId: user?.id,
     enabled: !!user?.id,
     limit: 10,
-  })
+  });
 
   // Calculate real-time stats
   const stats = useRealtimeStats({
     collections,
     paymentsCount: payments.length,
-  })
+  });
 
   // Handle new payment notifications
   const handlePaymentNotificationShown = (payment: Payment) => {
-    setLastActivity(`New payment of $${payment.amount.toFixed(2)} received`)
+    setLastActivity(`New payment of $${payment.amount.toFixed(2)} received`);
     // Clear the new payment count after showing notification
     setTimeout(() => {
-      clearNewPaymentCount()
-    }, 1000)
+      clearNewPaymentCount();
+    }, 1000);
+  };
+
+  const connectionStatus: ConnectionStatus =
+    collectionsConnected && paymentsConnected ? 'connected' : 'connecting';
+
+  // Auth state management
+  useEffect(() => {
+    const supabase = createClient();
+
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setIsLoading(false);
+
+      if (!user) {
+        router.push('/login');
+      }
+    };
+
+    getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session?.user) {
+        setUser(null);
+        router.push('/login');
+      } else {
+        setUser(session.user);
+        setIsLoading(false);
+
+        // Set access token cookie for RLS
+        if (session.access_token) {
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=strict`;
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[150px] items-center justify-center sm:min-h-[200px]">
+        <div className="flex items-center space-x-3">
+          <div className="border-penn-red h-5 w-5 animate-spin rounded-full border-b-2 sm:h-6 sm:w-6"></div>
+          <span className="text-text-primary text-sm sm:text-base">Loading dashboard...</span>
+        </div>
+      </div>
+    );
   }
 
-  const connectionStatus: ConnectionStatus = collectionsConnected && paymentsConnected ? 'connected' : 'connecting'
-
   if (!user) {
-    return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <div className="border-penn-red h-6 w-6 animate-spin rounded-full border-b-2"></div>
-        <span className="text-text-primary ml-2">Loading dashboard...</span>
-      </div>
-    )
+    return null; // Will redirect via useEffect
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Payment Notifications */}
       <PaymentNotificationManager
         newPayments={payments}
         onNotificationShown={handlePaymentNotificationShown}
       />
 
-      {/* Welcome Section */}
-      <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-text-primary mb-4 text-2xl font-bold">Welcome Back!</h2>
+      {/* Welcome Section - Mobile Optimized */}
+      <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-text-primary mb-4 text-xl font-bold sm:text-2xl">Welcome Back!</h2>
             <div className="space-y-2">
-              <p className="text-text-secondary">
+              <p className="text-text-secondary text-sm sm:text-base">
                 Welcome to the Empire Football Group payment management system.
               </p>
-              <p className="text-text-secondary">
+              <p className="text-text-secondary text-sm sm:text-base">
                 Logged in as: <span className="font-medium">{user.email}</span>
               </p>
-              <p className="text-text-muted text-sm">Session started: {loginTime}</p>
-              {lastActivity && <p className="text-sm text-green-600">Latest: {lastActivity}</p>}
+              <p className="text-text-muted text-xs sm:text-sm">Session started: {loginTime}</p>
+              {lastActivity && (
+                <p className="text-xs text-green-600 sm:text-sm">Latest: {lastActivity}</p>
+              )}
             </div>
           </div>
 
-          {/* Connection Status */}
-          <div className="flex items-center space-x-2">
+          {/* Connection Status - Mobile optimized */}
+          <div className="flex items-center space-x-2 self-start sm:self-auto">
             <div
               className={`h-2 w-2 rounded-full ${
                 connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'
               }`}
             />
-            <span className="text-text-muted text-xs">
+            <span className="text-text-muted text-xs whitespace-nowrap">
               {connectionStatus === 'connected' ? 'Live' : 'Connecting...'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Real-time Stats */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
+      {/* Real-time Stats - Progressive Grid Layout */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        {/* Total Collections Card */}
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-penn-red mb-2 text-lg font-semibold">Total Collections</h3>
-              <p className="text-text-primary text-3xl font-bold">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-penn-red mb-2 text-sm font-semibold sm:text-lg">
+                Total Collections
+              </h3>
+              <p className="text-text-primary text-2xl font-bold sm:text-3xl">
                 {collectionsLoading ? '...' : stats.totalCollections}
               </p>
-              <p className="text-text-secondary text-sm">
+              <p className="text-text-secondary text-xs sm:text-sm">
                 {collectionsLoading ? '...' : stats.activeCollections} active
               </p>
             </div>
-            <div className="text-penn-red opacity-75">
-              <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+            <div className="text-penn-red flex-shrink-0 opacity-75">
+              <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
                 <path
                   fillRule="evenodd"
@@ -157,17 +184,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
+        {/* Total Raised Card */}
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-penn-red mb-2 text-lg font-semibold">Total Raised</h3>
-              <p className="text-text-primary text-3xl font-bold">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-penn-red mb-2 text-sm font-semibold sm:text-lg">Total Raised</h3>
+              <p className="text-text-primary text-2xl font-bold sm:text-3xl">
                 {collectionsLoading ? '...' : `$${stats.totalRaised.toFixed(2)}`}
               </p>
-              <p className="text-text-secondary text-sm">Across all collections</p>
+              <p className="text-text-secondary text-xs sm:text-sm">Across all collections</p>
             </div>
-            <div className="text-green-600 opacity-75">
-              <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex-shrink-0 text-green-600 opacity-75">
+              <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                 <path
                   fillRule="evenodd"
@@ -179,22 +207,25 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
+        {/* Recent Payments Card */}
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-penn-red mb-2 text-lg font-semibold">Recent Payments</h3>
-              <p className="text-text-primary text-3xl font-bold">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-penn-red mb-2 text-sm font-semibold sm:text-lg">
+                Recent Payments
+              </h3>
+              <p className="text-text-primary text-2xl font-bold sm:text-3xl">
                 {paymentsLoading ? '...' : payments.length}
               </p>
-              <p className="text-text-secondary text-sm">
+              <p className="text-text-secondary text-xs sm:text-sm">
                 {newPaymentCount > 0 && (
                   <span className="font-medium text-green-600">+{newPaymentCount} new</span>
                 )}
                 {newPaymentCount === 0 && 'Last 10 payments'}
               </p>
             </div>
-            <div className="text-blue-600 opacity-75">
-              <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex-shrink-0 text-blue-600 opacity-75">
+              <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -205,161 +236,167 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
-          <h3 className="text-penn-red mb-2 text-lg font-semibold">Quick Actions</h3>
-          <div className="space-y-2">
+        {/* Quick Actions Card - Enhanced for Mobile */}
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 xl:col-span-1 dark:border-gray-700">
+          <h3 className="text-penn-red mb-3 text-sm font-semibold sm:mb-2 sm:text-lg">
+            Quick Actions
+          </h3>
+          <div className="space-y-3 sm:space-y-2">
             <Link
               href="/admin/collections/new"
-              className="bg-penn-red hover:bg-lighter-red block w-full rounded-md px-4 py-2 text-center text-sm text-white transition-colors"
+              className="bg-penn-red hover:bg-lighter-red flex w-full items-center justify-center rounded-md px-4 py-3 text-center text-sm font-medium text-white transition-colors sm:py-2"
             >
-              New Collection
+              <span className="sm:hidden">+ New Collection</span>
+              <span className="hidden sm:inline">New Collection</span>
             </Link>
             <Link
               href="/admin/collections"
-              className="text-text-primary block w-full rounded-md border border-gray-300 px-4 py-2 text-center text-sm transition-colors hover:bg-gray-50"
+              className="text-text-primary flex w-full items-center justify-center rounded-md border border-gray-300 px-4 py-3 text-center text-sm transition-colors hover:bg-gray-50 sm:py-2 dark:border-gray-600 dark:hover:bg-gray-800"
             >
-              View Collections
+              <span className="sm:hidden">View All</span>
+              <span className="hidden sm:inline">View Collections</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Recent Activity Feed */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Recent Activity Feed - Mobile Optimized */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Recent Payments */}
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-text-primary text-lg font-semibold">Recent Payments</h3>
+            <h3 className="text-text-primary text-base font-semibold sm:text-lg">
+              Recent Payments
+            </h3>
             {paymentsLoading && (
-              <div className="border-penn-red h-4 w-4 animate-spin rounded-full border-b-2" />
+              <div className="border-penn-red h-3 w-3 animate-spin rounded-full border-b-2 sm:h-4 sm:w-4" />
             )}
           </div>
 
           {collectionsError || paymentsLoading ? (
             <div className="py-8 text-center">
-              {collectionsError && <p className="text-sm text-red-600">{collectionsError}</p>}
-              {paymentsLoading && <p className="text-text-muted text-sm">Loading payments...</p>}
+              {collectionsError && (
+                <p className="text-xs text-red-600 sm:text-sm">{collectionsError}</p>
+              )}
+              {paymentsLoading && (
+                <p className="text-text-muted text-xs sm:text-sm">Loading payments...</p>
+              )}
             </div>
           ) : payments.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-text-muted text-sm">No payments yet</p>
+              <p className="text-text-muted text-xs sm:text-sm">No payments yet</p>
+              <p className="text-text-muted mt-1 text-xs">Payments will appear here in real-time</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {payments.slice(0, 5).map((payment: Payment) => (
+            <div className="space-y-3 sm:space-y-4">
+              {payments.map((payment, index) => (
                 <div
                   key={payment.id}
-                  className="bg-background flex items-center justify-between rounded-md p-3"
+                  className={`rounded-lg border p-3 sm:p-4 ${
+                    index < newPaymentCount
+                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+                      : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
+                  }`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-text-primary truncate text-sm font-medium">
-                      {payment.payer_name || 'Anonymous'}
-                    </p>
-                    <p className="text-text-muted text-xs">
-                      {new Date(payment.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-green-600">${payment.amount.toFixed(2)}</p>
-                    <p className="text-text-muted text-xs capitalize">{payment.status}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-text-primary text-sm font-medium sm:text-base">
+                        {payment.payer_name || 'Anonymous'}
+                      </p>
+                      <p className="text-text-muted text-xs sm:text-sm">
+                        {new Date(payment.created_at).toLocaleDateString()} at{' '}
+                        {new Date(payment.created_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-text-primary text-sm font-bold sm:text-base">
+                        ${payment.amount.toFixed(2)}
+                      </p>
+                      {index < newPaymentCount && (
+                        <span className="text-xs text-green-600">New!</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
-
-              {payments.length > 5 && (
-                <div className="pt-2 text-center">
-                  <Link
-                    href="/admin/payments"
-                    className="text-penn-red hover:text-lighter-red text-sm font-medium"
-                  >
-                    View all payments →
-                  </Link>
-                </div>
-              )}
             </div>
           )}
         </div>
 
-        {/* Active Collections Summary */}
-        <div className="bg-contrast rounded-lg border border-gray-200 p-6 shadow-sm dark:border-gray-700">
+        {/* Collections Overview */}
+        <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-text-primary text-lg font-semibold">Active Collections</h3>
+            <h3 className="text-text-primary text-base font-semibold sm:text-lg">
+              Active Collections
+            </h3>
             {collectionsLoading && (
-              <div className="border-penn-red h-4 w-4 animate-spin rounded-full border-b-2" />
+              <div className="border-penn-red h-3 w-3 animate-spin rounded-full border-b-2 sm:h-4 sm:w-4" />
             )}
           </div>
 
-          {collectionsError ? (
+          {collectionsError || collectionsLoading ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-red-600">{collectionsError}</p>
+              {collectionsError && (
+                <p className="text-xs text-red-600 sm:text-sm">{collectionsError}</p>
+              )}
+              {collectionsLoading && (
+                <p className="text-text-muted text-xs sm:text-sm">Loading collections...</p>
+              )}
             </div>
-          ) : collectionsLoading ? (
+          ) : collections.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-text-muted text-sm">Loading collections...</p>
-            </div>
-          ) : collections.filter((c: Collection) => c.is_active).length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-text-muted text-sm">No active collections</p>
+              <p className="text-text-muted text-xs sm:text-sm">No collections yet</p>
               <Link
                 href="/admin/collections/new"
-                className="text-penn-red hover:text-lighter-red mt-2 inline-block text-sm font-medium"
+                className="text-penn-red hover:text-lighter-red mt-2 inline-block text-xs underline sm:text-sm"
               >
-                Create your first collection →
+                Create your first collection
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {collections
-                .filter((c: Collection) => c.is_active)
-                .slice(0, 3)
-                .map((collection: Collection) => {
-                  const progress = collection.target_amount
-                    ? (collection.current_amount / collection.target_amount) * 100
-                    : 0
-
-                  return (
-                    <div key={collection.id} className="bg-background rounded-md p-3">
-                      <div className="mb-2 flex items-start justify-between">
-                        <h4 className="text-text-primary flex-1 truncate text-sm font-medium">
-                          {collection.title}
-                        </h4>
-                        <span className="ml-2 text-sm font-semibold text-green-600">
-                          ${collection.current_amount.toFixed(2)}
-                        </span>
-                      </div>
-
-                      {collection.target_amount && (
-                        <>
-                          <div className="text-text-muted mb-1 flex justify-between text-xs">
-                            <span>Progress</span>
-                            <span>{Math.round(progress)}%</span>
-                          </div>
-                          <div className="h-2 w-full rounded-full bg-gray-200">
-                            <div
-                              className="bg-penn-red h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${Math.min(progress, 100)}%` }}
-                            />
-                          </div>
-                        </>
-                      )}
+            <div className="space-y-3 sm:space-y-4">
+              {collections.slice(0, 5).map(collection => (
+                <div
+                  key={collection.id}
+                  className="rounded-lg border border-gray-200 p-3 sm:p-4 dark:border-gray-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-text-primary text-sm font-medium sm:text-base">
+                        {collection.title}
+                      </p>
+                      <p className="text-text-muted text-xs sm:text-sm">
+                        {collection.target_amount
+                          ? `$${collection.current_amount.toFixed(2)} of $${collection.target_amount.toFixed(2)}`
+                          : `$${collection.current_amount.toFixed(2)} raised`}
+                      </p>
                     </div>
-                  )
-                })}
-
-              {collections.filter((c: Collection) => c.is_active).length > 3 && (
-                <div className="pt-2 text-center">
-                  <Link
-                    href="/admin/collections"
-                    className="text-penn-red hover:text-lighter-red text-sm font-medium"
-                  >
-                    View all collections →
-                  </Link>
+                    <div className="text-right">
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs ${
+                          collection.is_active
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                        }`}
+                      >
+                        {collection.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              ))}
+              {collections.length > 5 && (
+                <Link
+                  href="/admin/collections"
+                  className="text-penn-red hover:text-lighter-red block text-center text-xs underline sm:text-sm"
+                >
+                  View all {collections.length} collections
+                </Link>
               )}
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

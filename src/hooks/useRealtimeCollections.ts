@@ -61,7 +61,7 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
 
       // Create unique channel name to avoid conflicts
       const channelName = `payment_collections_${userId}_${Date.now()}`;
-      
+
       const channel = supabase
         .channel(channelName)
         .on(
@@ -115,7 +115,7 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
         channelRef.current = null;
       }
     };
-  }, [userId, enabled, supabase]); 
+  }, [userId, enabled, supabase]);
 
   const refreshCollections = async () => {
     if (!userId) return;

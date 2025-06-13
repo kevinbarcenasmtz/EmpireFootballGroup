@@ -7,7 +7,7 @@ export function createStaticSafeClient() {
     console.warn('Supabase environment variables not available during build time');
     return null;
   }
-  
+
   // Only import and create client if we have proper environment
   try {
     return createClient();
@@ -21,8 +21,8 @@ export function createStaticSafeClient() {
 export const mockSupabaseClient = {
   auth: {
     getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    onAuthStateChange: () => ({ 
-      data: { subscription: { unsubscribe: () => {} } } 
+    onAuthStateChange: () => ({
+      data: { subscription: { unsubscribe: () => {} } },
     }),
     signOut: () => Promise.resolve({ error: null }),
     signInWithPassword: () => Promise.resolve({ error: null }),

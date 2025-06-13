@@ -11,9 +11,9 @@ export async function createClient() {
     // throw a descriptive error instead of trying to create the client
     throw new Error(
       `Supabase environment variables not found. ` +
-      `NEXT_PUBLIC_SUPABASE_URL: ${!!supabaseUrl}, ` +
-      `NEXT_PUBLIC_SUPABASE_ANON_KEY: ${!!supabaseAnonKey}. ` +
-      `This function should only be called during request handling, not during build time.`
+        `NEXT_PUBLIC_SUPABASE_URL: ${!!supabaseUrl}, ` +
+        `NEXT_PUBLIC_SUPABASE_ANON_KEY: ${!!supabaseAnonKey}. ` +
+        `This function should only be called during request handling, not during build time.`
     );
   }
 
@@ -27,9 +27,7 @@ export async function createClient() {
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
           // The `setAll` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
@@ -70,19 +68,19 @@ export function createRequestClient(request: Request) {
   }
 
   const cookieHeader = request.headers.get('cookie') || '';
-  
+
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         if (!cookieHeader) return [];
-        
+
         return cookieHeader.split(';').map(cookie => {
           const [name, ...valueParts] = cookie.trim().split('=');
           return { name, value: valueParts.join('=') };
         });
       },
       setAll() {
-        // In Cloudflare Workers/Edge environments, 
+        // In Cloudflare Workers/Edge environments,
         // cookie setting would be handled differently
         // This is mainly for token validation scenarios
       },

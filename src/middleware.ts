@@ -3,7 +3,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 /**
  * Type guard to check if an object has the required user properties
  */
-function isValidUserObject(obj: unknown): obj is { id: string; email: string; [key: string]: unknown } {
+function isValidUserObject(
+  obj: unknown
+): obj is { id: string; email: string; [key: string]: unknown } {
   return (
     typeof obj === 'object' &&
     obj !== null &&
@@ -41,9 +43,10 @@ async function validateAccessToken(request: NextRequest) {
   try {
     // Check for access token in multiple locations (following Reddit pattern)
     const authHeader = request.headers.get('authorization');
-    const accessToken = authHeader?.replace('Bearer ', '') ||
-                       request.cookies.get('sb-access-token')?.value ||
-                       request.cookies.get('supabase.auth.token')?.value;
+    const accessToken =
+      authHeader?.replace('Bearer ', '') ||
+      request.cookies.get('sb-access-token')?.value ||
+      request.cookies.get('supabase.auth.token')?.value;
 
     if (!accessToken) {
       console.log('No access token found, redirecting to login');
@@ -62,8 +65,8 @@ async function validateAccessToken(request: NextRequest) {
     // Direct API call to validate token (Reddit pattern)
     const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'apikey': supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`,
+        apikey: supabaseAnonKey,
         'Content-Type': 'application/json',
       },
     });
@@ -78,7 +81,7 @@ async function validateAccessToken(request: NextRequest) {
     }
 
     const userData: unknown = await response.json();
-    
+
     // Validate the response has the expected user structure
     if (!isValidUserObject(userData)) {
       console.error('Invalid user data structure received from Supabase');
@@ -97,7 +100,6 @@ async function validateAccessToken(request: NextRequest) {
         headers: requestHeaders,
       },
     });
-
   } catch (error) {
     console.error('Error validating access token:', error);
     return NextResponse.redirect(new URL('/login', request.url));

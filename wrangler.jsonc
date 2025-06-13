@@ -14,7 +14,7 @@
 
   // Environment Variables - Add this section
   "vars": {
-    "SQUARE_ENVIRONMENT": "sandbox",
+    "SQUARE_ENVIRONMENT": "production",
   },
 
   // Note: Don't put sensitive values here! Use secrets instead

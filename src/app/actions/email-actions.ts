@@ -5,6 +5,7 @@ import { sendEmail, emailConfig } from '@/lib/email/resend-client';
 import { generatePaymentReceiptEmail } from '@/lib/email/templates/payment-receipt';
 import { generateAdminNotificationEmail } from '@/lib/email/templates/admin-notification';
 import { createClient } from '@/utils/supabase/server';
+import { createServiceClient } from '@/utils/supabase/service';
 
 export interface EmailResult {
   success: boolean;
@@ -176,8 +177,7 @@ export async function sendPaymentEmails(
  */
 export async function getCollectionAdminEmail(collectionId: string): Promise<string | null> {
   try {
-    const supabase = await createClient();
-
+    const supabase = createServiceClient(); // ✅ Use service client for admin operations
     // Get the admin user for this collection
     const { data: collection, error: collectionError } = await supabase
       .from('payment_collections')

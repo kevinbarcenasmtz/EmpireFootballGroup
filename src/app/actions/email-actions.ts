@@ -4,7 +4,6 @@ import { Payment, PaymentCollection } from '@/types/database';
 import { sendEmail, emailConfig } from '@/lib/email/resend-client';
 import { generatePaymentReceiptEmail } from '@/lib/email/templates/payment-receipt';
 import { generateAdminNotificationEmail } from '@/lib/email/templates/admin-notification';
-import { createClient } from '@/utils/supabase/server';
 import { createServiceClient } from '@/utils/supabase/service';
 
 export interface EmailResult {

@@ -62,7 +62,7 @@ export async function submitSignup(
     // If existing signup found, update it
     if (existingSignups && existingSignups.length > 0) {
       const existingSignup = existingSignups[0];
-      
+
       const { data: updatedSignup, error: updateError } = await supabase
         .from('player_signups')
         .update({
@@ -98,12 +98,12 @@ export async function submitSignup(
 
     if (insertError) {
       console.error('Insert signup error:', insertError);
-      
+
       // Handle unique constraint violation
       if (insertError.code === '23505') {
         return { error: 'You have already signed up for this event' };
       }
-      
+
       return { error: 'Failed to submit signup' };
     }
 
@@ -168,7 +168,9 @@ export async function getCollectionForSignup(slug: string) {
 
     const { data: collection, error } = await supabase
       .from('payment_collections')
-      .select('id, title, description, is_active, collection_type, settings')
+      .select(
+        'id, title, description, is_active, collection_type, settings, created_at, updated_at, admin_id, slug, current_amount'
+      )
       .eq('slug', slug)
       .single();
 

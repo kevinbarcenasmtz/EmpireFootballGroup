@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { PaymentCollection, CollectionType, isSignupCollection } from '@/types/database';
 import { CollectionCard } from './CollectionCard';
+import { User } from '@supabase/supabase-js';
 
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<PaymentCollection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<CollectionType | 'all'>('all');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,12 +23,12 @@ export default function CollectionsPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      
+
       if (!user) {
         router.push('/login');
         return;
       }
-      
+
       setUser(user);
       await fetchCollections(user.id);
     };
@@ -86,9 +87,7 @@ export default function CollectionsPage() {
       {/* Header - Responsive */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h1 className="text-text-primary truncate text-xl font-bold sm:text-2xl">
-            Collections
-          </h1>
+          <h1 className="text-text-primary truncate text-xl font-bold sm:text-2xl">Collections</h1>
           <p className="text-text-secondary mt-1 text-sm sm:text-base">
             Manage your teams payment and signup collections • Real-time updates enabled
           </p>
@@ -101,7 +100,7 @@ export default function CollectionsPage() {
             <span className="sm:hidden">+ New</span>
             <span className="hidden sm:inline">New Collection</span>
           </Link>
-          </div>
+        </div>
       </div>
 
       {/* Filter Tabs - Mobile Responsive */}
@@ -110,7 +109,7 @@ export default function CollectionsPage() {
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             <button
               onClick={() => setFilterType('all')}
-              className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
                 filterType === 'all'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
@@ -123,7 +122,7 @@ export default function CollectionsPage() {
             </button>
             <button
               onClick={() => setFilterType('payment')}
-              className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
                 filterType === 'payment'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
@@ -136,7 +135,7 @@ export default function CollectionsPage() {
             </button>
             <button
               onClick={() => setFilterType('signup')}
-              className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
                 filterType === 'signup'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
@@ -210,10 +209,9 @@ export default function CollectionsPage() {
                 No {filterType} collections found
               </h3>
               <p className="text-text-secondary mb-4 text-sm sm:mb-6 sm:text-base">
-                {filterType === 'payment' 
+                {filterType === 'payment'
                   ? 'Create a payment collection to start collecting fees and donations'
-                  : 'Create a signup collection to track attendance for practices and games'
-                }
+                  : 'Create a signup collection to track attendance for practices and games'}
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

@@ -128,3 +128,5 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
     summary,
   };
 }
+
+export default useRealtimeSignups;

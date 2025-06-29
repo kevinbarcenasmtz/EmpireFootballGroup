@@ -144,7 +144,9 @@ export default function AdminDashboard() {
                   Logged in at: <span className="font-medium">{loginTime}</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <div className={`h-2 w-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                  <div
+                    className={`h-2 w-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                  />
                   <span className="text-text-muted">
                     {connectionStatus === 'connected' ? 'Real-time active' : 'Connecting...'}
                   </span>
@@ -166,7 +168,9 @@ export default function AdminDashboard() {
         <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-text-secondary truncate text-sm font-medium">Payment Collections</p>
+              <p className="text-text-secondary truncate text-sm font-medium">
+                Payment Collections
+              </p>
               <p className="text-text-primary text-2xl font-bold">{stats.totalCollections}</p>
               <p className="text-text-secondary text-xs sm:text-sm">
                 {stats.activeCollections} active
@@ -183,7 +187,9 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-text-secondary truncate text-sm font-medium">Signup Collections</p>
-              <p className="text-text-primary text-2xl font-bold">{signupStats.totalSignupCollections}</p>
+              <p className="text-text-primary text-2xl font-bold">
+                {signupStats.totalSignupCollections}
+              </p>
               <p className="text-text-secondary text-xs sm:text-sm">
                 {signupStats.activeSignupCollections} active
               </p>
@@ -199,9 +205,12 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-text-secondary truncate text-sm font-medium">Total Revenue</p>
-              <p className="text-text-primary text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</p>
+              <p className="text-text-primary text-2xl font-bold">
+                ${stats.totalRevenue.toFixed(2)}
+              </p>
               <p className="text-text-secondary text-xs sm:text-sm">
-                Across {paymentCollections.length} collection{paymentCollections.length !== 1 ? 's' : ''}
+                Across {paymentCollections.length} collection
+                {paymentCollections.length !== 1 ? 's' : ''}
               </p>
             </div>
             <div className="flex-shrink-0 text-green-600 opacity-75">
@@ -261,7 +270,7 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/collections/new"
-              className="bg-green-600 hover:bg-green-700 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-center text-sm font-medium text-white transition-colors sm:py-2"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-green-700 sm:py-2"
             >
               <span>📝</span>
               <span className="sm:hidden">New Signup Collection</span>
@@ -278,7 +287,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity Feed */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4 lg:col-span-2">
           {/* Recent Payments */}
           <div className="bg-contrast rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700">
             <div className="mb-4 flex items-center justify-between">
@@ -291,7 +300,7 @@ export default function AdminDashboard() {
             </div>
 
             {collectionsError || paymentsLoading ? (
-              <div className="text-center py-4">
+              <div className="py-4 text-center">
                 <p className="text-text-secondary text-sm">
                   {collectionsError ? 'Error loading data' : 'Loading payments...'}
                 </p>
@@ -328,7 +337,7 @@ export default function AdminDashboard() {
                   <div className="text-center">
                     <Link
                       href="/admin/collections"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium dark:text-blue-400"
+                      className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
                     >
                       View all payments →
                     </Link>
@@ -336,10 +345,15 @@ export default function AdminDashboard() {
                 )}
               </div>
             ) : (
-              <div className="text-center py-8">
+              <div className="py-8 text-center">
                 <div className="mx-auto mb-4 h-8 w-8 text-gray-400">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 12H4"
+                    />
                   </svg>
                 </div>
                 <p className="text-text-secondary text-sm">No recent payments</p>
@@ -373,20 +387,20 @@ export default function AdminDashboard() {
                         <span className="text-lg">
                           {isSignupCollection(collection) ? '📝' : '💰'}
                         </span>
-                        <p className="text-text-primary text-sm font-medium truncate">
+                        <p className="text-text-primary truncate text-sm font-medium">
                           {collection.title}
                         </p>
                       </div>
                       <p className="text-text-secondary text-xs">
-                        {isSignupCollection(collection) ? 'Signup Collection' : 'Payment Collection'} • 
-                        {collection.is_active ? ' Active' : ' Inactive'}
+                        {isSignupCollection(collection)
+                          ? 'Signup Collection'
+                          : 'Payment Collection'}{' '}
+                        •{collection.is_active ? ' Active' : ' Inactive'}
                       </p>
                     </div>
                     <div className="text-right">
                       {isSignupCollection(collection) ? (
-                        <p className="text-sm font-medium text-green-600">
-                          Signups
-                        </p>
+                        <p className="text-sm font-medium text-green-600">Signups</p>
                       ) : (
                         <p className="text-sm font-medium text-green-600">
                           ${collection.current_amount.toFixed(2)}
@@ -398,17 +412,22 @@ export default function AdminDashboard() {
                 <div className="text-center">
                   <Link
                     href="/admin/collections"
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium dark:text-blue-400"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
                   >
                     View all collections →
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8">
+              <div className="py-8 text-center">
                 <div className="mx-auto mb-4 h-8 w-8 text-gray-400">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                 </div>
                 <p className="text-text-secondary text-sm">No collections yet</p>

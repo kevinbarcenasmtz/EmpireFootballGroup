@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PaymentCollection, getCollectionTypeInfo, isSignupCollection } from '@/types/database';
+import {
+  PaymentCollection,
+  PlayerSignup,
+  getCollectionTypeInfo,
+  isSignupCollection,
+} from '@/types/database';
 import { useRealtimePayments } from '@/hooks/useRealtimePayments';
 import { useRealtimeSignups } from '@/hooks/useRealtimeSignups';
 import { toggleCollectionStatus, deleteCollection } from './actions';
@@ -24,11 +29,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
   const isSignup = isSignupCollection(collection);
 
   // Use appropriate real-time hook based on collection type
-  const {
-    payments,
-    isLoading: paymentsLoading,
-    error: paymentsError,
-  } = useRealtimePayments({
+  const { payments } = useRealtimePayments({
     userId,
     collectionId: isSignup ? undefined : collection.id,
     enabled: !isSignup,
@@ -39,7 +40,6 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
     signups,
     summary: signupSummary,
     isLoading: signupsLoading,
-    error: signupsError,
   } = useRealtimeSignups({
     collectionId: isSignup ? collection.id : '',
     userId,
@@ -70,7 +70,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
   const handleToggleStatus = async () => {
     setIsLoading(true);
     const result = await toggleCollectionStatus(collection.id, !localCollection.is_active);
-    
+
     if (result.success) {
       setLocalCollection(prev => ({ ...prev, is_active: !prev.is_active }));
     }
@@ -78,13 +78,17 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete "${collection.title}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${collection.title}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
     setIsLoading(true);
     const result = await deleteCollection(collection.id);
-    
+
     if (result.success) {
       router.refresh();
     }
@@ -92,24 +96,24 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
   };
 
   // Get event details from settings for signup collections
-  const eventDate = isSignup && collection.settings?.event_date 
-    ? new Date(collection.settings.event_date as string).toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
+  const eventDate =
+    isSignup && collection.settings?.event_date
+      ? new Date(collection.settings.event_date as string).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : null;
 
-  const eventLocation = isSignup && collection.settings?.location 
-    ? collection.settings.location as string 
-    : null;
+  const eventLocation =
+    isSignup && collection.settings?.location ? (collection.settings.location as string) : null;
 
   return (
     <div className="bg-contrast relative rounded-lg border border-gray-200 p-4 shadow-sm transition-all hover:shadow-md sm:p-6 dark:border-gray-700">
       {/* Status Badge */}
-      <div className="absolute right-3 top-3 sm:right-4 sm:top-4">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium sm:text-sm ${
             localCollection.is_active
@@ -129,7 +133,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
             {collection.title}
           </h3>
         </div>
-        
+
         {collection.description && (
           <p className="text-text-secondary text-sm sm:text-base">{collection.description}</p>
         )}
@@ -164,7 +168,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
                 {signupsLoading ? '...' : signupSummary.total}
               </span>
             </div>
-            
+
             {signupSummary.total > 0 && (
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-md bg-green-50 p-2 dark:bg-green-900/20">
@@ -219,7 +223,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
               }}
             />
           </div>
-          <p className="text-text-secondary mt-1 text-xs text-right">
+          <p className="text-text-secondary mt-1 text-right text-xs">
             {Math.round((collection.current_amount / collection.target_amount) * 100)}% complete
           </p>
         </div>
@@ -291,11 +295,9 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
       {/* Recent Signups */}
       {isSignup && signups.length > 0 && (
         <div className="mb-4 rounded-lg bg-green-50 p-3 sm:p-4 dark:bg-green-900/20">
-          <p className="text-text-secondary mb-3 text-xs font-medium sm:text-sm">
-            Recent Signups:
-          </p>
+          <p className="text-text-secondary mb-3 text-xs font-medium sm:text-sm">Recent Signups:</p>
           <div className="space-y-2 sm:space-y-1">
-            {signups.slice(0, 3).map(signup => (
+            {signups.slice(0, 3).map((signup: PlayerSignup) => (
               <div
                 key={signup.id}
                 className="flex items-center justify-between gap-2 rounded-md bg-white p-2 sm:bg-transparent sm:p-1 dark:bg-gray-800 sm:dark:bg-transparent"
@@ -303,11 +305,15 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
                 <span className="text-text-primary min-w-0 flex-1 truncate text-sm font-medium sm:text-xs">
                   {signup.player_name}
                 </span>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                  signup.status === 'yes' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' :
-                  signup.status === 'maybe' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
-                  'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                }`}>
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${
+                    signup.status === 'yes'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                      : signup.status === 'maybe'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                  }`}
+                >
                   {signup.status.toUpperCase()}
                 </span>
               </div>
@@ -348,7 +354,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
         <button
           onClick={handleDelete}
           disabled={isLoading}
-          className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50 sm:py-2"
+          className="flex flex-1 items-center justify-center gap-2 rounded-md bg-red-100 px-4 py-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-200 disabled:opacity-50 sm:py-2 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
         >
           Delete
         </button>

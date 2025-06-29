@@ -173,14 +173,14 @@ export function getCollectionTypeInfo(collection: PaymentCollection) {
       type: 'signup' as const,
       icon: '📝',
       primaryMetric: 'signups',
-      actionText: 'Sign Up'
+      actionText: 'Sign Up',
     };
   }
-  
+
   return {
     type: 'payment' as const,
     icon: '💰',
     primaryMetric: 'amount',
-    actionText: 'Pay Now'
+    actionText: 'Pay Now',
   };
 }

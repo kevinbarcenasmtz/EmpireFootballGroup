@@ -61,7 +61,8 @@ export async function createCollection(
         admin_id: userId,
         title: validatedData.title,
         description: validatedData.description || null,
-        target_amount: validatedData.collection_type === 'signup' ? null : validatedData.target_amount || null,
+        target_amount:
+          validatedData.collection_type === 'signup' ? null : validatedData.target_amount || null,
         collection_type: validatedData.collection_type,
         slug: slug,
         is_active: true,
@@ -98,10 +99,12 @@ export async function getSignups(collectionId: string): Promise<ActionResult<Pla
     // Verify user owns this collection and get signups
     const { data, error } = await supabase
       .from('player_signups')
-      .select(`
+      .select(
+        `
         *,
         payment_collections!inner(admin_id)
-      `)
+      `
+      )
       .eq('collection_id', collectionId)
       .eq('payment_collections.admin_id', userId)
       .order('created_at', { ascending: false });
@@ -140,10 +143,12 @@ export async function deleteSignup(signupId: string): Promise<ActionResult> {
     // First verify the signup belongs to a collection owned by this user
     const { data: signupData, error: verifyError } = await supabase
       .from('player_signups')
-      .select(`
+      .select(
+        `
         id,
         payment_collections!inner(admin_id)
-      `)
+      `
+      )
       .eq('id', signupId)
       .eq('payment_collections.admin_id', userId)
       .single();
@@ -153,10 +158,7 @@ export async function deleteSignup(signupId: string): Promise<ActionResult> {
     }
 
     // Delete the signup
-    const { error } = await supabase
-      .from('player_signups')
-      .delete()
-      .eq('id', signupId);
+    const { error } = await supabase.from('player_signups').delete().eq('id', signupId);
 
     if (error) {
       console.error('Delete signup error:', error);

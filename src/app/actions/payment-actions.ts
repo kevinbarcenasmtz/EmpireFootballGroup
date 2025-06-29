@@ -54,7 +54,7 @@ export async function processPayment(formData: FormData) {
 
     // Use regular client for reading collection (this is public access)
     const supabase = await createClient();
-    
+
     // Create service client for database writes (bypasses RLS)
     const serviceSupabase = createServiceClient();
 

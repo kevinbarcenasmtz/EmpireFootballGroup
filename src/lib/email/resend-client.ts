@@ -16,7 +16,7 @@ export const emailConfig = {
     const env = validateEmailEnvironment();
     return env.FROM_EMAIL;
   },
-  
+
   get adminEmail() {
     if (!isEmailAvailable()) {
       throw new Error('Email system not configured - missing environment variables');
@@ -24,7 +24,7 @@ export const emailConfig = {
     const env = validateEmailEnvironment();
     return env.ADMIN_EMAIL;
   },
-  
+
   get appUrl() {
     if (!isEmailAvailable()) {
       throw new Error('Email system not configured - missing environment variables');
@@ -32,7 +32,7 @@ export const emailConfig = {
     const env = validateEmailEnvironment();
     return env.NEXT_PUBLIC_APP_URL;
   },
-  
+
   get supportEmail() {
     if (!isEmailAvailable()) {
       throw new Error('Email system not configured - missing environment variables');
@@ -63,7 +63,7 @@ export async function sendEmail(options: {
   // Validate email addresses
   const recipients = Array.isArray(options.to) ? options.to : [options.to];
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
   for (const email of recipients) {
     if (!emailRegex.test(email)) {
       return {
@@ -92,12 +92,11 @@ export async function sendEmail(options: {
       timestamp: new Date().toISOString(),
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       id: result.data?.id,
-      message: 'Email sent successfully' 
+      message: 'Email sent successfully',
     };
-
   } catch (error) {
     console.error('Failed to send email:', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -114,7 +113,7 @@ export async function sendEmail(options: {
           error: 'Email service configuration error - invalid API key',
         };
       }
-      
+
       if (error.message.includes('Rate limit')) {
         return {
           success: false,
@@ -138,7 +137,7 @@ export function canSendEmail(): boolean {
 // Helper function to get email configuration safely (for debugging)
 export function getEmailConfigStatus() {
   const available = isEmailAvailable();
-  
+
   if (!available) {
     return {
       available: false,

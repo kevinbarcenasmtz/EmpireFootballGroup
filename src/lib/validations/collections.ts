@@ -27,7 +27,10 @@ export const createCollectionSchema = z.object({
 
 // NEW: Signup submission validation
 export const submitSignupSchema = z.object({
-  player_name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
+  player_name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be less than 100 characters'),
   player_phone: z
     .string()
     .optional()

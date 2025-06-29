@@ -17,14 +17,14 @@
     "SQUARE_ENVIRONMENT": "production",
     "NEXT_PUBLIC_APP_URL": "https://www.empirefootballleague-atx.com/",
     "ADMIN_EMAIL": "empirefootballgroupllc@gmail.com",
-    "FROM_EMAIL": "empirefootballwebsite@gmail.com"
+    "FROM_EMAIL": "empirefootballwebsite@gmail.com",
   },
 
   // Note: Sensitive values are stored as Secrets in Cloudflare Workers Dashboard:
-  // 
+  //
   // REQUIRED SECRETS (Add these via Cloudflare Dashboard → Settings → Variables → Secrets):
   // - SQUARE_ACCESS_TOKEN              (Square payment processing)
-  // - SQUARE_APPLICATION_ID            (Square app configuration) 
+  // - SQUARE_APPLICATION_ID            (Square app configuration)
   // - SQUARE_LOCATION_ID               (Square business location)
   // - SUPABASE_SERVICE_ROLE_KEY        (Database operations - bypasses RLS)
   // - RESEND_API_KEY                   (Email notifications) ← ADD THIS ONE

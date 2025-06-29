@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { PaymentCollection } from '@/types/database';
 
 interface RealtimeStats {
   totalCollections: number;
   activeCollections: number;
-  totalRaised: number;
+  totalRevenue: number; // Changed from totalRaised to match admin page
   totalPayments: number;
 }
 
@@ -16,24 +16,18 @@ interface UseRealtimeStatsOptions {
 }
 
 export function useRealtimeStats({ collections, paymentsCount = 0 }: UseRealtimeStatsOptions) {
-  const [stats, setStats] = useState<RealtimeStats>({
-    totalCollections: 0,
-    activeCollections: 0,
-    totalRaised: 0,
-    totalPayments: paymentsCount,
-  });
-
-  useEffect(() => {
+  // Use useMemo to prevent infinite re-renders
+  const stats = useMemo((): RealtimeStats => {
     const totalCollections = collections.length;
     const activeCollections = collections.filter(c => c.is_active).length;
-    const totalRaised = collections.reduce((sum, c) => sum + (c.current_amount || 0), 0);
+    const totalRevenue = collections.reduce((sum, c) => sum + (c.current_amount || 0), 0);
 
-    setStats({
+    return {
       totalCollections,
       activeCollections,
-      totalRaised,
+      totalRevenue, // Fixed property name
       totalPayments: paymentsCount,
-    });
+    };
   }, [collections, paymentsCount]);
 
   return stats;

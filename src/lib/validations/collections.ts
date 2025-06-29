@@ -18,11 +18,30 @@ export const createCollectionSchema = z.object({
     .refine(val => val === undefined || val > 0, {
       message: 'Target amount must be greater than 0',
     }),
+  // NEW: Collection type validation
+  collection_type: z.enum(['payment', 'signup']).default('payment'),
+  // NEW: Event details for signup collections (stored in metadata)
+  event_date: z.string().optional(),
+  location: z.string().optional(),
+});
+
+// NEW: Signup submission validation
+export const submitSignupSchema = z.object({
+  player_name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
+  player_phone: z
+    .string()
+    .optional()
+    .refine(val => !val || val.length >= 10, {
+      message: 'Phone number must be at least 10 digits',
+    }),
+  status: z.enum(['yes', 'no', 'maybe']),
+  notes: z.string().max(500, 'Notes must be less than 500 characters').optional(),
 });
 
 export type CreateCollectionData = z.infer<typeof createCollectionSchema>;
+export type SubmitSignupData = z.infer<typeof submitSignupSchema>;
 
-// Function to generate URL-safe slug
+// Function to generate URL-safe slug (existing - unchanged)
 export function generateSlug(title: string): string {
   return (
     title

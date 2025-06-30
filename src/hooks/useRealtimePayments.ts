@@ -1,44 +1,75 @@
+// src/hooks/useRealtimePayments.ts
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Payment } from '@/types/database';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 
 interface UseRealtimePaymentsOptions {
-  collectionId?: string;
   userId?: string;
+  collectionId?: string;
   enabled?: boolean;
   limit?: number;
 }
 
+// Singleton client
+let supabaseClient: SupabaseClient | null = null;
+const getSupabaseClient = () => {
+  if (!supabaseClient) {
+    supabaseClient = createClient();
+  }
+  return supabaseClient;
+};
+
 export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
-  const { collectionId, userId, enabled = true, limit = 50 } = options;
+  const { userId, collectionId, enabled = true, limit = 10 } = options;
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPaymentCount, setNewPaymentCount] = useState(0);
+  const [isConnected, setIsConnected] = useState(false);
+  
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const supabase = createClient();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef(true);
+  const processingRef = useRef(new Set<string>());
+
+  const cleanup = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
+    if (channelRef.current) {
+      console.log('Cleaning up payments subscription');
+      const supabase = getSupabaseClient();
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    
+    setIsConnected(false);
+    processingRef.current.clear();
+  }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
+    
     if (!enabled || !userId) {
       setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
+    const supabase = getSupabaseClient();
 
     const fetchInitialData = async () => {
       try {
         let query = supabase
           .from('payments')
-          .select(
-            `
+          .select(`
             *,
             payment_collections!inner(admin_id)
-          `
-          )
+          `)
           .eq('payment_collections.admin_id', userId)
           .order('created_at', { ascending: false })
           .limit(limit);
@@ -51,31 +82,30 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
 
         if (error) throw error;
 
-        if (isMounted) {
+        if (mountedRef.current) {
           setPayments(data || []);
           setError(null);
         }
       } catch (err) {
         console.error('Error fetching payments:', err);
-        if (isMounted) {
+        if (mountedRef.current) {
           setError(err instanceof Error ? err.message : 'Failed to fetch payments');
         }
       } finally {
-        if (isMounted) {
+        if (mountedRef.current) {
           setIsLoading(false);
         }
       }
     };
 
     const setupRealtimeSubscription = () => {
-      // Clean up existing subscription first
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      cleanup();
 
-      // Create unique channel name to avoid conflicts
+      if (!mountedRef.current) return;
+
       const channelName = `payments_${userId}_${collectionId || 'all'}_${Date.now()}`;
+      
+      console.log('Setting up payments subscription:', channelName);
 
       const channel = supabase
         .channel(channelName)
@@ -86,83 +116,128 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
             schema: 'public',
             table: 'payments',
           },
-          async payload => {
+          async (payload) => {
+            if (!mountedRef.current) return;
+
             console.log('Payment realtime update:', payload);
 
-            if (!isMounted) return; // Prevent state updates if unmounted
+            // Type-safe ID extraction
+            let payloadId: string | undefined;
+            
+            if (payload.eventType === 'DELETE') {
+              // For DELETE events, the ID is in payload.old
+              const oldRecord = payload.old as Record<string, unknown>;
+              payloadId = typeof oldRecord.id === 'string' ? oldRecord.id : undefined;
+            } else {
+              // For INSERT/UPDATE events, the ID is in payload.new
+              const newRecord = payload.new as Record<string, unknown>;
+              payloadId = typeof newRecord.id === 'string' ? newRecord.id : undefined;
+            }
 
-            // Verify this payment belongs to the current user's collections
-            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-              const paymentData = payload.new as Payment;
+            if (!payloadId) {
+              console.warn('Payload missing ID:', payload);
+              return;
+            }
 
-              // Check if this payment belongs to user's collection
-              const { data: collection } = await supabase
-                .from('payment_collections')
-                .select('admin_id')
-                .eq('id', paymentData.collection_id)
-                .eq('admin_id', userId)
-                .single();
+            // Prevent duplicate processing
+            const eventKey = `${payload.eventType}_${payloadId}`;
+            if (processingRef.current.has(eventKey)) {
+              console.log('Skipping duplicate event:', eventKey);
+              return;
+            }
+            processingRef.current.add(eventKey);
 
-              if (!collection) return; // Not user's payment
+            try {
+              if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                const paymentData = payload.new as Payment;
 
-              // Filter by collection if specified
-              if (collectionId && paymentData.collection_id !== collectionId) return;
+                // Verify this payment belongs to user's collection
+                const { data: collection } = await supabase
+                  .from('payment_collections')
+                  .select('admin_id')
+                  .eq('id', paymentData.collection_id)
+                  .eq('admin_id', userId)
+                  .single();
 
-              if (payload.eventType === 'INSERT') {
-                setPayments(prev => [paymentData, ...prev.slice(0, limit - 1)]);
-                setNewPaymentCount(prev => prev + 1);
-              } else if (payload.eventType === 'UPDATE') {
-                setPayments(prev =>
-                  prev.map(payment => (payment.id === paymentData.id ? paymentData : payment))
-                );
+                if (!collection) return;
+
+                if (collectionId && paymentData.collection_id !== collectionId) return;
+
+                if (payload.eventType === 'INSERT') {
+                  setPayments(prev => [paymentData, ...prev.slice(0, limit - 1)]);
+                  setNewPaymentCount(prev => prev + 1);
+                } else if (payload.eventType === 'UPDATE') {
+                  setPayments(prev =>
+                    prev.map(payment => 
+                      payment.id === paymentData.id ? paymentData : payment
+                    )
+                  );
+                }
+              } else if (payload.eventType === 'DELETE' && payloadId) {
+                setPayments(prev => prev.filter(payment => payment.id !== payloadId));
               }
-            } else if (payload.eventType === 'DELETE') {
-              const deletedId = payload.old.id;
-              setPayments(prev => prev.filter(payment => payment.id !== deletedId));
+            } finally {
+              // Remove from processing set after a delay
+              setTimeout(() => {
+                processingRef.current.delete(eventKey);
+              }, 1000);
             }
           }
         )
-        .subscribe(status => {
-          console.log(`Payments subscription (${channelName}) status:`, status);
-          // Just log the status - no hardcoded comparisons
+        .subscribe((status) => {
+          console.log(`Payments subscription status: ${status}`);
+          
+          if (!mountedRef.current) return;
+
+          if (status === 'SUBSCRIBED') {
+            setIsConnected(true);
+          } else if (status === 'CHANNEL_ERROR') {
+            setIsConnected(false);
+            if (mountedRef.current && !reconnectTimeoutRef.current) {
+              reconnectTimeoutRef.current = setTimeout(() => {
+                reconnectTimeoutRef.current = null;
+                if (mountedRef.current) {
+                  console.log('Retrying payments subscription...');
+                  setupRealtimeSubscription();
+                }
+              }, 5000);
+            }
+          } else if (status === 'TIMED_OUT') {
+            setIsConnected(false);
+          }
         });
 
       channelRef.current = channel;
     };
 
     fetchInitialData().then(() => {
-      if (isMounted) {
+      if (mountedRef.current) {
         setupRealtimeSubscription();
       }
     });
 
     return () => {
-      isMounted = false;
-      if (channelRef.current) {
-        console.log('Cleaning up payments subscription');
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      mountedRef.current = false;
+      cleanup();
     };
-  }, [userId, collectionId, enabled, limit, supabase]); // Removed supabase from dependencies
+  }, [userId, collectionId, enabled, limit, cleanup]);
 
-  const clearNewPaymentCount = () => {
+  const clearNewPaymentCount = useCallback(() => {
     setNewPaymentCount(0);
-  };
+  }, []);
 
-  const refreshPayments = async () => {
+  const refreshPayments = useCallback(async () => {
     if (!userId) return;
 
     setIsLoading(true);
     try {
+      const supabase = getSupabaseClient();
       let query = supabase
         .from('payments')
-        .select(
-          `
+        .select(`
           *,
           payment_collections!inner(admin_id)
-        `
-        )
+        `)
         .eq('payment_collections.admin_id', userId)
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -182,7 +257,7 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, collectionId, limit]);
 
   return {
     payments,
@@ -191,6 +266,6 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
     newPaymentCount,
     clearNewPaymentCount,
     refreshPayments,
-    isConnected: channelRef.current?.state === 'joined',
+    isConnected,
   };
 }

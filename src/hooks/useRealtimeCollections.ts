@@ -1,30 +1,62 @@
+// src/hooks/useRealtimeCollections.ts
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { PaymentCollection } from '@/types/database';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 
 interface UseRealtimeCollectionsOptions {
   userId?: string;
   enabled?: boolean;
 }
 
+// Create client outside component to prevent recreations
+let supabaseClient: SupabaseClient | null = null;
+const getSupabaseClient = () => {
+  if (!supabaseClient) {
+    supabaseClient = createClient();
+  }
+  return supabaseClient;
+};
+
 export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = {}) {
   const { userId, enabled = true } = options;
   const [collections, setCollections] = useState<PaymentCollection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const supabase = createClient();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef(true);
+
+  // Cleanup function
+  const cleanup = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
+    if (channelRef.current) {
+      console.log('Cleaning up collections subscription');
+      const supabase = getSupabaseClient();
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    
+    setIsConnected(false);
+  }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
+    
     if (!enabled || !userId) {
       setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
+    const supabase = getSupabaseClient();
 
     const fetchInitialData = async () => {
       try {
@@ -36,31 +68,32 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
 
         if (error) throw error;
 
-        if (isMounted) {
+        if (mountedRef.current) {
           setCollections(data || []);
           setError(null);
         }
       } catch (err) {
         console.error('Error fetching collections:', err);
-        if (isMounted) {
+        if (mountedRef.current) {
           setError(err instanceof Error ? err.message : 'Failed to fetch collections');
         }
       } finally {
-        if (isMounted) {
+        if (mountedRef.current) {
           setIsLoading(false);
         }
       }
     };
 
     const setupRealtimeSubscription = () => {
-      // Clean up existing subscription first
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      // Always cleanup existing subscription first
+      cleanup();
 
-      // Create unique channel name to avoid conflicts
+      if (!mountedRef.current) return;
+
+      // Create unique channel name
       const channelName = `payment_collections_${userId}_${Date.now()}`;
+
+      console.log('Setting up collections subscription:', channelName);
 
       const channel = supabase
         .channel(channelName)
@@ -72,10 +105,10 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
             table: 'payment_collections',
             filter: `admin_id=eq.${userId}`,
           },
-          payload => {
-            console.log('Collection realtime update:', payload);
+          (payload) => {
+            if (!mountedRef.current) return;
 
-            if (!isMounted) return; // Prevent state updates if unmounted
+            console.log('Collection realtime update:', payload);
 
             if (payload.eventType === 'INSERT') {
               const newCollection = payload.new as PaymentCollection;
@@ -88,40 +121,58 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
                 )
               );
             } else if (payload.eventType === 'DELETE') {
-              const deletedId = payload.old.id;
+              const deletedId = (payload.old as { id: string }).id;
               setCollections(prev => prev.filter(collection => collection.id !== deletedId));
             }
           }
         )
-        .subscribe(status => {
-          console.log(`Collections subscription (${channelName}) status:`, status);
-          // Just log the status - no hardcoded comparisons
+        .subscribe((status) => {
+          console.log(`Collections subscription status: ${status}`);
+          
+          if (!mountedRef.current) return;
+
+          if (status === 'SUBSCRIBED') {
+            setIsConnected(true);
+          } else if (status === 'CHANNEL_ERROR') {
+            setIsConnected(false);
+            // Retry connection after 5 seconds
+            if (mountedRef.current && !reconnectTimeoutRef.current) {
+              reconnectTimeoutRef.current = setTimeout(() => {
+                reconnectTimeoutRef.current = null;
+                if (mountedRef.current) {
+                  console.log('Retrying collections subscription...');
+                  setupRealtimeSubscription();
+                }
+              }, 5000);
+            }
+          } else if (status === 'TIMED_OUT') {
+            setIsConnected(false);
+          }
         });
 
       channelRef.current = channel;
     };
 
+    // Fetch initial data and setup subscription
     fetchInitialData().then(() => {
-      if (isMounted) {
+      if (mountedRef.current) {
         setupRealtimeSubscription();
       }
     });
 
+    // Cleanup on unmount
     return () => {
-      isMounted = false;
-      if (channelRef.current) {
-        console.log('Cleaning up collections subscription');
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      mountedRef.current = false;
+      cleanup();
     };
-  }, [userId, enabled, supabase]);
+  }, [userId, enabled, cleanup]); // Remove supabase from dependencies
 
-  const refreshCollections = async () => {
+  const refreshCollections = useCallback(async () => {
     if (!userId) return;
 
     setIsLoading(true);
     try {
+      const supabase = getSupabaseClient();
       const { data, error } = await supabase
         .from('payment_collections')
         .select('*')
@@ -137,13 +188,13 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   return {
     collections,
     isLoading,
     error,
     refreshCollections,
-    isConnected: channelRef.current?.state === 'joined',
+    isConnected,
   };
 }

@@ -1,9 +1,10 @@
+// src/hooks/useRealtimeSignups.ts
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { PlayerSignup, SignupSummary } from '@/types/database';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 
 interface UseRealtimeSignupsOptions {
   collectionId: string;
@@ -11,14 +12,25 @@ interface UseRealtimeSignupsOptions {
   enabled?: boolean;
 }
 
+// Singleton client
+let supabaseClient: SupabaseClient | null = null;
+const getSupabaseClient = () => {
+  if (!supabaseClient) {
+    supabaseClient = createClient();
+  }
+  return supabaseClient;
+};
+
 export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
   const { collectionId, enabled = true } = options;
   const [signups, setSignups] = useState<PlayerSignup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const supabase = createClient();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef(true);
 
   // Calculate summary from signups
   const summary: SignupSummary = {
@@ -28,13 +40,31 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
     total: signups.length,
   };
 
+  const cleanup = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
+    if (channelRef.current) {
+      console.log('Cleaning up signups subscription');
+      const supabase = getSupabaseClient();
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    
+    setIsConnected(false);
+  }, []);
+
   useEffect(() => {
+    mountedRef.current = true;
+    
     if (!enabled || !collectionId) {
       setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
+    const supabase = getSupabaseClient();
 
     const fetchInitialData = async () => {
       try {
@@ -46,30 +76,30 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
 
         if (error) throw error;
 
-        if (isMounted) {
+        if (mountedRef.current) {
           setSignups(data || []);
           setError(null);
         }
       } catch (err) {
         console.error('Error fetching signups:', err);
-        if (isMounted) {
+        if (mountedRef.current) {
           setError(err instanceof Error ? err.message : 'Failed to fetch signups');
         }
       } finally {
-        if (isMounted) {
+        if (mountedRef.current) {
           setIsLoading(false);
         }
       }
     };
 
     const setupRealtimeSubscription = () => {
-      // Clean up existing subscription
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      cleanup();
+
+      if (!mountedRef.current) return;
 
       const channelName = `signups_${collectionId}_${Date.now()}`;
+      
+      console.log('Setting up signups subscription:', channelName);
 
       const channel = supabase
         .channel(channelName)
@@ -81,10 +111,10 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
             table: 'player_signups',
             filter: `collection_id=eq.${collectionId}`,
           },
-          payload => {
-            console.log('Signup realtime update:', payload);
+          (payload) => {
+            if (!mountedRef.current) return;
 
-            if (!isMounted) return;
+            console.log('Signup realtime update:', payload);
 
             if (payload.eventType === 'INSERT') {
               const newSignup = payload.new as PlayerSignup;
@@ -92,33 +122,53 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
             } else if (payload.eventType === 'UPDATE') {
               const updatedSignup = payload.new as PlayerSignup;
               setSignups(prev =>
-                prev.map(signup => (signup.id === updatedSignup.id ? updatedSignup : signup))
+                prev.map(signup => 
+                  signup.id === updatedSignup.id ? updatedSignup : signup
+                )
               );
             } else if (payload.eventType === 'DELETE') {
-              const deletedSignup = payload.old as PlayerSignup;
-              setSignups(prev => prev.filter(signup => signup.id !== deletedSignup.id));
+              const deletedId = (payload.old as { id: string }).id;
+              setSignups(prev => prev.filter(signup => signup.id !== deletedId));
             }
           }
         )
-        .subscribe(status => {
-          console.log('Signups subscription status:', status);
-          setIsConnected(status === 'SUBSCRIBED');
+        .subscribe((status) => {
+          console.log(`Signups subscription status: ${status}`);
+          
+          if (!mountedRef.current) return;
+
+          if (status === 'SUBSCRIBED') {
+            setIsConnected(true);
+          } else if (status === 'CHANNEL_ERROR') {
+            setIsConnected(false);
+            if (mountedRef.current && !reconnectTimeoutRef.current) {
+              reconnectTimeoutRef.current = setTimeout(() => {
+                reconnectTimeoutRef.current = null;
+                if (mountedRef.current) {
+                  console.log('Retrying signups subscription...');
+                  setupRealtimeSubscription();
+                }
+              }, 5000);
+            }
+          } else if (status === 'TIMED_OUT') {
+            setIsConnected(false);
+          }
         });
 
       channelRef.current = channel;
     };
 
-    fetchInitialData();
-    setupRealtimeSubscription();
+    fetchInitialData().then(() => {
+      if (mountedRef.current) {
+        setupRealtimeSubscription();
+      }
+    });
 
     return () => {
-      isMounted = false;
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      mountedRef.current = false;
+      cleanup();
     };
-  }, [enabled, collectionId, supabase]);
+  }, [enabled, collectionId, cleanup]);
 
   return {
     signups,

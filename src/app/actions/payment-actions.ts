@@ -8,17 +8,79 @@ import { validateServerEnvironment, EnvironmentError } from '@/lib/env-validatio
 import { getSquareErrorMessage, logSquareError } from '@/lib/square-errors';
 import { sendPaymentEmails, getCollectionAdminEmail } from './email-actions';
 import { Client, Environment } from 'square/legacy';
+import { rateLimiters } from '@/lib/rate-limit';
+import { headers } from 'next/headers';
 
 export async function processPayment(formData: FormData) {
   try {
-    // Validate server environment first
-    const env = validateServerEnvironment();
-
+    // Get IP address for rate limiting
+    const headersList = await headers();
+    const forwardedFor = headersList.get('x-forwarded-for');
+    const realIp = headersList.get('x-real-ip');
+    const cfConnectingIp = headersList.get('cf-connecting-ip'); // Cloudflare
+    
+    const ip = cfConnectingIp || forwardedFor?.split(',')[0] || realIp || 'unknown';
+    
+    // Extract payment details first for better rate limiting
     const sourceId = formData.get('sourceId') as string;
     const collectionSlug = formData.get('collectionSlug') as string;
     const amount = parseFloat(formData.get('amount') as string);
     const payerEmail = formData.get('payerEmail') as string;
     const payerName = formData.get('payerName') as string;
+    
+    // Apply rate limiting by IP address
+    const ipRateLimit = await rateLimiters.payment.check(
+      {} as Request, // We don't need the request object for IP-based limiting
+      10, // 10 payment attempts per minute per IP
+      `payment_ip_${ip}`
+    );
+    
+    if (!ipRateLimit.success) {
+      console.warn('Payment rate limit exceeded for IP:', ip);
+      return { 
+        error: `Too many payment attempts. Please wait ${Math.ceil((ipRateLimit.reset.getTime() - Date.now()) / 1000)} seconds before trying again.`,
+        rateLimitExceeded: true,
+      };
+    }
+    
+    // Apply rate limiting by email (stricter)
+    if (payerEmail) {
+      const emailRateLimit = await rateLimiters.payment.check(
+        {} as Request,
+        5, // 5 payment attempts per minute per email
+        `payment_email_${payerEmail.toLowerCase()}`
+      );
+      
+      if (!emailRateLimit.success) {
+        console.warn('Payment rate limit exceeded for email:', payerEmail);
+        return { 
+          error: `Too many payment attempts for this email. Please wait before trying again.`,
+          rateLimitExceeded: true,
+        };
+      }
+    }
+    
+    // Apply rate limiting by amount (prevent testing with same amounts)
+    const amountKey = `payment_amount_${ip}_${amount}`;
+    const amountRateLimit = await rateLimiters.payment.check(
+      {} as Request,
+      3, // 3 attempts with same amount per minute
+      amountKey
+    );
+    
+    if (!amountRateLimit.success) {
+      console.warn('Same amount attempted too many times:', { ip, amount });
+      return { 
+        error: 'Too many attempts with the same amount. Please try a different amount or wait.',
+        rateLimitExceeded: true,
+      };
+    }
+
+    // Log rate limit usage for monitoring
+    console.log('Payment rate limits:', {
+      ip: `${ipRateLimit.remaining}/${ipRateLimit.limit}`,
+      amount: `${amountRateLimit.remaining}/${amountRateLimit.limit}`,
+    });
 
     // Comprehensive input validation
     const validationError = validatePaymentInputs({
@@ -32,6 +94,9 @@ export async function processPayment(formData: FormData) {
     if (validationError) {
       return { error: validationError };
     }
+
+    // Validate server environment
+    const env = validateServerEnvironment();
 
     console.log('Processing payment:', {
       sourceId: sourceId.substring(0, 10) + '...',
@@ -77,8 +142,6 @@ export async function processPayment(formData: FormData) {
     }
 
     // STEP 1: Generate deterministic idempotency key
-    // Use a combination of collection, email, amount, and timestamp (rounded to nearest minute)
-    // This prevents duplicate charges within a 1-minute window
     const timestamp = Math.floor(Date.now() / 60000) * 60000; // Round to nearest minute
     const idempotencyKey = `${collectionSlug}-${payerEmail.toLowerCase()}-${amount}-${timestamp}-${sourceId.substring(0, 8)}`;
     
@@ -126,7 +189,6 @@ export async function processPayment(formData: FormData) {
         }
         
         // If older than 30 seconds and still pending, it likely failed
-        // Update status to failed and continue with new payment
         await serviceSupabase
           .from('payment_idempotency')
           .update({ 
@@ -161,13 +223,13 @@ export async function processPayment(formData: FormData) {
     try {
       const { result } = await squareClient.paymentsApi.createPayment({
         sourceId,
-        idempotencyKey: idempotencyKey, // Use our deterministic key
+        idempotencyKey: idempotencyKey,
         amountMoney: {
           amount: BigInt(Math.round(amount * 100)), // Convert to cents as BigInt
           currency: 'USD',
         },
-        buyerEmailAddress: payerEmail.toLowerCase().trim(), // Add buyer email to Square
-        note: `Payment for: ${collection.title}`, // Add payment note
+        buyerEmailAddress: payerEmail.toLowerCase().trim(),
+        note: `Payment for: ${collection.title}`,
       });
 
       console.log('Square payment result:', {

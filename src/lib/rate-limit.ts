@@ -25,16 +25,12 @@ export function rateLimit(options: Options = {}) {
   });
 
   return {
-    check: async (
-      request: Request, 
-      limit: number, 
-      token: string
-    ): Promise<RateLimitResult> => {
+    check: async (request: Request, limit: number, token: string): Promise<RateLimitResult> => {
       const now = Date.now();
       const tokenEntry = tokenCache.get(token);
-      
+
       let entry: Entry;
-      
+
       if (!tokenEntry || now > tokenEntry.resetTime) {
         // Create new entry
         entry = {
@@ -44,13 +40,13 @@ export function rateLimit(options: Options = {}) {
       } else {
         entry = tokenEntry;
       }
-      
+
       entry.count += 1;
       tokenCache.set(token, entry);
-      
+
       const remaining = Math.max(0, limit - entry.count);
       const reset = new Date(entry.resetTime);
-      
+
       return {
         success: entry.count <= limit,
         limit,
@@ -68,13 +64,13 @@ export const rateLimiters = {
     interval: 60 * 1000, // 1 minute window
     uniqueTokenPerInterval: 10000,
   }),
-  
+
   // More relaxed for general API calls
   api: rateLimit({
     interval: 60 * 1000, // 1 minute window
     uniqueTokenPerInterval: 10000,
   }),
-  
+
   // Very strict for authentication attempts
   auth: rateLimit({
     interval: 15 * 60 * 1000, // 15 minute window

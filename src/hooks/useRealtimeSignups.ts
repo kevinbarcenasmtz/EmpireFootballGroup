@@ -27,7 +27,7 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
@@ -45,20 +45,20 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (channelRef.current) {
       console.log('Cleaning up signups subscription');
       const supabase = getSupabaseClient();
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
-    
+
     setIsConnected(false);
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    
+
     if (!enabled || !collectionId) {
       setIsLoading(false);
       return;
@@ -98,7 +98,7 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
       if (!mountedRef.current) return;
 
       const channelName = `signups_${collectionId}_${Date.now()}`;
-      
+
       console.log('Setting up signups subscription:', channelName);
 
       const channel = supabase
@@ -111,7 +111,7 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
             table: 'player_signups',
             filter: `collection_id=eq.${collectionId}`,
           },
-          (payload) => {
+          payload => {
             if (!mountedRef.current) return;
 
             console.log('Signup realtime update:', payload);
@@ -122,9 +122,7 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
             } else if (payload.eventType === 'UPDATE') {
               const updatedSignup = payload.new as PlayerSignup;
               setSignups(prev =>
-                prev.map(signup => 
-                  signup.id === updatedSignup.id ? updatedSignup : signup
-                )
+                prev.map(signup => (signup.id === updatedSignup.id ? updatedSignup : signup))
               );
             } else if (payload.eventType === 'DELETE') {
               const deletedId = (payload.old as { id: string }).id;
@@ -132,9 +130,9 @@ export function useRealtimeSignups(options: UseRealtimeSignupsOptions) {
             }
           }
         )
-        .subscribe((status) => {
+        .subscribe(status => {
           console.log(`Signups subscription status: ${status}`);
-          
+
           if (!mountedRef.current) return;
 
           if (status === 'SUBSCRIBED') {

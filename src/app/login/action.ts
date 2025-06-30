@@ -14,54 +14,54 @@ export async function login(formData: FormData) {
     const forwardedFor = headersList.get('x-forwarded-for');
     const realIp = headersList.get('x-real-ip');
     const cfConnectingIp = headersList.get('cf-connecting-ip'); // Cloudflare
-    
+
     const ip = cfConnectingIp || forwardedFor?.split(',')[0] || realIp || 'unknown';
-    
+
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    
+
     if (!email || !password) {
       return { error: 'Email and password are required' };
     }
-    
+
     // Rate limit by IP address first
     const ipRateLimit = await rateLimiters.auth.check(
       {} as Request,
       10, // 10 login attempts per 15 minutes per IP
       `login_ip_${ip}`
     );
-    
+
     if (!ipRateLimit.success) {
       console.warn('Login rate limit exceeded for IP:', ip);
       const waitMinutes = Math.ceil((ipRateLimit.reset.getTime() - Date.now()) / 60000);
-      return { 
+      return {
         error: `Too many login attempts from this location. Please wait ${waitMinutes} minutes before trying again.`,
         rateLimitExceeded: true,
       };
     }
-    
+
     // Rate limit by email (stricter to prevent account takeover)
     const emailRateLimit = await rateLimiters.auth.check(
       {} as Request,
       5, // 5 login attempts per 15 minutes per email
       `login_email_${email.toLowerCase()}`
     );
-    
+
     if (!emailRateLimit.success) {
       console.warn('Login rate limit exceeded for email:', email);
       const waitMinutes = Math.ceil((emailRateLimit.reset.getTime() - Date.now()) / 60000);
-      return { 
+      return {
         error: `Too many login attempts for this account. Please wait ${waitMinutes} minutes or reset your password.`,
         rateLimitExceeded: true,
       };
     }
-    
+
     // Log rate limit usage
     console.log('Login rate limits:', {
       ip: `${ipRateLimit.remaining}/${ipRateLimit.limit}`,
       email: `${emailRateLimit.remaining}/${emailRateLimit.limit}`,
     });
-    
+
     // Create Supabase client and attempt login
     const supabase = await createClient();
 
@@ -72,10 +72,10 @@ export async function login(formData: FormData) {
 
     if (error) {
       console.log('Login error:', error.message);
-      
+
       // Generic error message to prevent email enumeration
       const userFriendlyError = 'Invalid email or password';
-      
+
       // If this was a failed attempt, also increment a combined rate limit
       const failedKey = `login_failed_${ip}_${email.toLowerCase()}`;
       await rateLimiters.auth.check(
@@ -83,7 +83,7 @@ export async function login(formData: FormData) {
         3, // Only 3 failed attempts allowed
         failedKey
       );
-      
+
       return { error: userFriendlyError };
     }
 

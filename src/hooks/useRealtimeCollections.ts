@@ -26,7 +26,7 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
@@ -37,20 +37,20 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (channelRef.current) {
       console.log('Cleaning up collections subscription');
       const supabase = getSupabaseClient();
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
-    
+
     setIsConnected(false);
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    
+
     if (!enabled || !userId) {
       setIsLoading(false);
       return;
@@ -105,7 +105,7 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
             table: 'payment_collections',
             filter: `admin_id=eq.${userId}`,
           },
-          (payload) => {
+          payload => {
             if (!mountedRef.current) return;
 
             console.log('Collection realtime update:', payload);
@@ -126,9 +126,9 @@ export function useRealtimeCollections(options: UseRealtimeCollectionsOptions = 
             }
           }
         )
-        .subscribe((status) => {
+        .subscribe(status => {
           console.log(`Collections subscription status: ${status}`);
-          
+
           if (!mountedRef.current) return;
 
           if (status === 'SUBSCRIBED') {

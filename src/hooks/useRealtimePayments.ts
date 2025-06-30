@@ -29,7 +29,7 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
   const [error, setError] = useState<string | null>(null);
   const [newPaymentCount, setNewPaymentCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
@@ -40,21 +40,21 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (channelRef.current) {
       console.log('Cleaning up payments subscription');
       const supabase = getSupabaseClient();
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
-    
+
     setIsConnected(false);
     processingRef.current.clear();
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    
+
     if (!enabled || !userId) {
       setIsLoading(false);
       return;
@@ -66,10 +66,12 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
       try {
         let query = supabase
           .from('payments')
-          .select(`
+          .select(
+            `
             *,
             payment_collections!inner(admin_id)
-          `)
+          `
+          )
           .eq('payment_collections.admin_id', userId)
           .order('created_at', { ascending: false })
           .limit(limit);
@@ -104,7 +106,7 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
       if (!mountedRef.current) return;
 
       const channelName = `payments_${userId}_${collectionId || 'all'}_${Date.now()}`;
-      
+
       console.log('Setting up payments subscription:', channelName);
 
       const channel = supabase
@@ -116,14 +118,14 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
             schema: 'public',
             table: 'payments',
           },
-          async (payload) => {
+          async payload => {
             if (!mountedRef.current) return;
 
             console.log('Payment realtime update:', payload);
 
             // Type-safe ID extraction
             let payloadId: string | undefined;
-            
+
             if (payload.eventType === 'DELETE') {
               // For DELETE events, the ID is in payload.old
               const oldRecord = payload.old as Record<string, unknown>;
@@ -168,9 +170,7 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
                   setNewPaymentCount(prev => prev + 1);
                 } else if (payload.eventType === 'UPDATE') {
                   setPayments(prev =>
-                    prev.map(payment => 
-                      payment.id === paymentData.id ? paymentData : payment
-                    )
+                    prev.map(payment => (payment.id === paymentData.id ? paymentData : payment))
                   );
                 }
               } else if (payload.eventType === 'DELETE' && payloadId) {
@@ -184,9 +184,9 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
             }
           }
         )
-        .subscribe((status) => {
+        .subscribe(status => {
           console.log(`Payments subscription status: ${status}`);
-          
+
           if (!mountedRef.current) return;
 
           if (status === 'SUBSCRIBED') {
@@ -234,10 +234,12 @@ export function useRealtimePayments(options: UseRealtimePaymentsOptions = {}) {
       const supabase = getSupabaseClient();
       let query = supabase
         .from('payments')
-        .select(`
+        .select(
+          `
           *,
           payment_collections!inner(admin_id)
-        `)
+        `
+        )
         .eq('payment_collections.admin_id', userId)
         .order('created_at', { ascending: false })
         .limit(limit);

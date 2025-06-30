@@ -107,5 +107,9 @@ async function validateAccessToken(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/api/admin/:path*',     // Add this line
+    '/api/collections/:path*', // Add this line
+  ],
 };

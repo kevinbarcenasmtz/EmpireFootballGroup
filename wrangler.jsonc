@@ -27,7 +27,7 @@
   // - SQUARE_APPLICATION_ID            (Square app configuration)
   // - SQUARE_LOCATION_ID               (Square business location)
   // - SUPABASE_SERVICE_ROLE_KEY        (Database operations - bypasses RLS)
-  // - RESEND_API_KEY                   (Email notifications) ← ADD THIS ONE
+  // - RESEND_API_KEY                   (Email notifications)
   //
   // REQUIRED ENVIRONMENT VARIABLES (Add these via Cloudflare Dashboard → Settings → Variables):
   // - NEXT_PUBLIC_SQUARE_APPLICATION_ID (Client-side Square integration)

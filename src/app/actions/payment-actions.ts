@@ -1,15 +1,12 @@
 // src/app/actions/payment-actions.ts
 'use server';
 
-import { randomUUID } from 'crypto';
 import { createClient } from '@/utils/supabase/server';
-import { createServiceClient } from '@/utils/supabase/service'; // NEW: Import service client
+import { createServiceClient } from '@/utils/supabase/service';
 import { revalidatePath } from 'next/cache';
 import { validateServerEnvironment, EnvironmentError } from '@/lib/env-validation';
 import { getSquareErrorMessage, logSquareError } from '@/lib/square-errors';
 import { sendPaymentEmails, getCollectionAdminEmail } from './email-actions';
-
-// Try using the legacy Square SDK instead
 import { Client, Environment } from 'square/legacy';
 
 export async function processPayment(formData: FormData) {
@@ -79,99 +76,226 @@ export async function processPayment(formData: FormData) {
       return { error: 'This payment would exceed the collection target. Please contact support.' };
     }
 
-    // Process payment with Square using legacy SDK
-    const { result } = await squareClient.paymentsApi.createPayment({
-      sourceId,
-      idempotencyKey: randomUUID(),
-      amountMoney: {
-        amount: BigInt(Math.round(amount * 100)), // Convert to cents as BigInt
-        currency: 'USD',
-      },
-    });
+    // STEP 1: Generate deterministic idempotency key
+    // Use a combination of collection, email, amount, and timestamp (rounded to nearest minute)
+    // This prevents duplicate charges within a 1-minute window
+    const timestamp = Math.floor(Date.now() / 60000) * 60000; // Round to nearest minute
+    const idempotencyKey = `${collectionSlug}-${payerEmail.toLowerCase()}-${amount}-${timestamp}-${sourceId.substring(0, 8)}`;
+    
+    console.log('Generated idempotency key:', idempotencyKey);
 
-    console.log('Square payment result:', {
-      paymentId: result.payment?.id,
-      status: result.payment?.status,
-      environment: env.SQUARE_ENVIRONMENT,
-    });
-
-    // STEP 3: Store payment in database using SERVICE CLIENT (bypasses RLS)
-    const { data: payment, error: paymentError } = await serviceSupabase
-      .from('payments')
-      .insert({
-        collection_id: collection.id,
-        square_payment_id: result.payment?.id,
-        amount: amount,
-        currency: 'USD',
-        payer_email: payerEmail.toLowerCase().trim(),
-        payer_name: payerName.trim(),
-        status: 'completed',
-        metadata: {
-          square_environment: env.SQUARE_ENVIRONMENT,
-          square_location_id: env.SQUARE_LOCATION_ID,
-        },
-      })
-      .select()
+    // STEP 2: Check for existing payment with this idempotency key
+    const { data: existingIdempotency } = await serviceSupabase
+      .from('payment_idempotency')
+      .select('*')
+      .eq('key', idempotencyKey)
       .single();
 
-    if (paymentError) {
-      console.error('Database error:', paymentError);
-      return {
-        error: 'Failed to record payment. Please contact support with your payment confirmation.',
-      };
+    if (existingIdempotency) {
+      console.log('Found existing idempotency record:', existingIdempotency);
+      
+      // If payment was completed, return the existing payment
+      if (existingIdempotency.status === 'completed' && existingIdempotency.payment_id) {
+        const { data: existingPayment } = await serviceSupabase
+          .from('payments')
+          .select('*')
+          .eq('id', existingIdempotency.payment_id)
+          .single();
+
+        if (existingPayment) {
+          console.log('Returning existing successful payment');
+          return {
+            success: true,
+            payment: existingPayment,
+            paymentId: existingPayment.square_payment_id,
+            isDuplicate: true,
+            message: 'This payment has already been processed successfully.'
+          };
+        }
+      }
+      
+      // If payment is still pending (processing), prevent duplicate
+      if (existingIdempotency.status === 'pending') {
+        const timeSinceCreation = Date.now() - new Date(existingIdempotency.created_at).getTime();
+        
+        // If less than 30 seconds old, it's likely still processing
+        if (timeSinceCreation < 30000) {
+          return { 
+            error: 'A payment is already being processed. Please wait a moment and check your email for confirmation.' 
+          };
+        }
+        
+        // If older than 30 seconds and still pending, it likely failed
+        // Update status to failed and continue with new payment
+        await serviceSupabase
+          .from('payment_idempotency')
+          .update({ 
+            status: 'failed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('key', idempotencyKey);
+      }
     }
 
-    // STEP 4: Update collection current_amount using SERVICE CLIENT (bypasses RLS)
-    const { error: updateError } = await serviceSupabase
-      .from('payment_collections')
-      .update({
-        current_amount: collection.current_amount + amount,
-      })
-      .eq('id', collection.id);
+    // STEP 3: Create or update idempotency record
+    const { error: idempotencyError } = await serviceSupabase
+      .from('payment_idempotency')
+      .upsert({
+        key: idempotencyKey,
+        collection_id: collection.id,
+        amount: amount,
+        payer_email: payerEmail.toLowerCase().trim(),
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'key'
+      });
 
-    if (updateError) {
-      console.error('Failed to update collection amount:', updateError);
-      // Don't fail the payment for this, just log it
+    if (idempotencyError) {
+      console.error('Failed to create idempotency record:', idempotencyError);
+      return { error: 'Failed to initialize payment. Please try again.' };
     }
 
-    // Get admin email for notifications
-    const adminEmail = await getCollectionAdminEmail(collection.id);
+    // STEP 4: Process payment with Square
+    try {
+      const { result } = await squareClient.paymentsApi.createPayment({
+        sourceId,
+        idempotencyKey: idempotencyKey, // Use our deterministic key
+        amountMoney: {
+          amount: BigInt(Math.round(amount * 100)), // Convert to cents as BigInt
+          currency: 'USD',
+        },
+        buyerEmailAddress: payerEmail.toLowerCase().trim(), // Add buyer email to Square
+        note: `Payment for: ${collection.title}`, // Add payment note
+      });
 
-    // Send emails asynchronously (don't block payment success)
-    if (adminEmail) {
-      console.log('Sending payment emails...');
+      console.log('Square payment result:', {
+        paymentId: result.payment?.id,
+        status: result.payment?.status,
+        environment: env.SQUARE_ENVIRONMENT,
+      });
 
-      // Send emails in the background
-      sendPaymentEmails(
-        payment,
-        { ...collection, current_amount: collection.current_amount + amount }, // Updated collection amount
-        adminEmail,
-        result.payment?.receiptUrl
-      )
-        .then(({ receiptResult, adminResult }) => {
-          console.log('Email results:', {
-            paymentId: payment.id,
-            receiptSent: receiptResult.success,
-            adminNotified: adminResult.success,
-            receiptError: receiptResult.error,
-            adminError: adminResult.error,
-          });
+      // STEP 5: Store payment in database
+      const { data: payment, error: paymentError } = await serviceSupabase
+        .from('payments')
+        .insert({
+          collection_id: collection.id,
+          square_payment_id: result.payment?.id,
+          amount: amount,
+          currency: 'USD',
+          payer_email: payerEmail.toLowerCase().trim(),
+          payer_name: payerName.trim(),
+          status: 'completed',
+          metadata: {
+            square_environment: env.SQUARE_ENVIRONMENT,
+            square_location_id: env.SQUARE_LOCATION_ID,
+            idempotency_key: idempotencyKey,
+          },
         })
-        .catch(error => {
-          console.error('Error sending payment emails:', error);
-        });
-    } else {
-      console.warn('No admin email found for collection, skipping admin notification');
-    }
+        .select()
+        .single();
 
-    revalidatePath(`/pay/${collectionSlug}`);
-    return {
-      success: true,
-      payment: payment,
-      paymentId: result.payment?.id,
-      receiptUrl: result.payment?.receiptUrl,
-      emailsQueued: !!adminEmail,
-    };
+      if (paymentError) {
+        console.error('Database error:', paymentError);
+        
+        // Update idempotency record to failed
+        await serviceSupabase
+          .from('payment_idempotency')
+          .update({ 
+            status: 'failed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('key', idempotencyKey);
+          
+        return {
+          error: 'Failed to record payment. Please contact support with your payment confirmation.',
+        };
+      }
+
+      // STEP 6: Update idempotency record to completed
+      await serviceSupabase
+        .from('payment_idempotency')
+        .update({ 
+          status: 'completed',
+          payment_id: payment.id,
+          updated_at: new Date().toISOString()
+        })
+        .eq('key', idempotencyKey);
+
+      // STEP 7: Update collection current_amount
+      const { error: updateError } = await serviceSupabase
+        .from('payment_collections')
+        .update({
+          current_amount: collection.current_amount + amount,
+        })
+        .eq('id', collection.id);
+
+      if (updateError) {
+        console.error('Failed to update collection amount:', updateError);
+        // Don't fail the payment for this, just log it
+      }
+
+      // Get admin email for notifications
+      const adminEmail = await getCollectionAdminEmail(collection.id);
+
+      // Send emails asynchronously (don't block payment success)
+      if (adminEmail) {
+        console.log('Sending payment emails...');
+
+        sendPaymentEmails(
+          payment,
+          { ...collection, current_amount: collection.current_amount + amount },
+          adminEmail,
+          result.payment?.receiptUrl
+        )
+          .then(({ receiptResult, adminResult }) => {
+            console.log('Email results:', {
+              paymentId: payment.id,
+              receiptSent: receiptResult.success,
+              adminNotified: adminResult.success,
+              receiptError: receiptResult.error,
+              adminError: adminResult.error,
+            });
+          })
+          .catch(error => {
+            console.error('Error sending payment emails:', error);
+          });
+      } else {
+        console.warn('No admin email found for collection, skipping admin notification');
+      }
+
+      revalidatePath(`/pay/${collectionSlug}`);
+      return {
+        success: true,
+        payment: payment,
+        paymentId: result.payment?.id,
+        receiptUrl: result.payment?.receiptUrl,
+        emailsQueued: !!adminEmail,
+      };
+      
+    } catch (squareError) {
+      console.error('Square payment error:', squareError);
+      
+      // Update idempotency record to failed
+      await serviceSupabase
+        .from('payment_idempotency')
+        .update({ 
+          status: 'failed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('key', idempotencyKey);
+      
+      // Handle Square API errors
+      if (squareError && typeof squareError === 'object' && 'statusCode' in squareError) {
+        logSquareError(squareError, 'payment-processing');
+        const { message } = getSquareErrorMessage(squareError);
+        return { error: message };
+      }
+      
+      throw squareError; // Re-throw to be caught by outer try-catch
+    }
+    
   } catch (error) {
     console.error('Payment processing error:', error);
 

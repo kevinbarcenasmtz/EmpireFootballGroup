@@ -15,7 +15,7 @@
   // Environment Variables - Non-sensitive configuration
   "vars": {
     "SQUARE_ENVIRONMENT": "production",
-    "NEXT_PUBLIC_APP_URL": "https://www.empirefootballleague-atx.com/",
+    "NEXT_PUBLIC_APP_URL": "https://www.empirefootballgroupatx.com/",
     "ADMIN_EMAIL": "empirefootballgroupllc@gmail.com",
     "FROM_EMAIL": "empirefootballwebsite@gmail.com",
   },

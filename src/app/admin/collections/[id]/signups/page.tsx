@@ -267,7 +267,7 @@ export default function SignupsPage() {
             <button
               onClick={() => {
                 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-                const signupUrl = `${baseUrl}/signup/${collection?.slug}`;
+                const signupUrl = `${baseUrl}signup/${collection?.slug}`;
                 navigator.clipboard.writeText(signupUrl);
                 // You could add a toast notification here
               }}

@@ -220,7 +220,7 @@ export default function SignupPage() {
               <input
                 type="tel"
                 placeholder="Enter your phone number"
-                className="flex-1 rounded-md border border-blue-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                className="flex-1 rounded-md border border-blue-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:text-white"
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     const input = e.target as HTMLInputElement;
@@ -262,7 +262,7 @@ export default function SignupPage() {
               {!existingSignup && (
                 <button
                   onClick={() => setShowPhoneLookup(true)}
-                  className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                  className="text-sm text-blue-600 hover:text-blue-800 dark:text-white"
                 >
                   Already signed up?
                 </button>

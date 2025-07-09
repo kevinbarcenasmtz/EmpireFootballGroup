@@ -53,7 +53,7 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
 
   const handleCopyLink = async () => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-    const linkPath = isSignup ? `/signup/${collection.slug}` : `/pay/${collection.slug}`;
+    const linkPath = isSignup ? `signup/${collection.slug}` : `/pay/${collection.slug}`;
     const fullUrl = `${baseUrl}${linkPath}`;
 
     try {

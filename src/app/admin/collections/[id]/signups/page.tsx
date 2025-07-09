@@ -147,9 +147,12 @@ export default function SignupsPage() {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="mb-2 flex items-center gap-2">
-          <Link href="/admin/collections" className="text-text-secondary hover:text-text-primary">
+          <Link
+            href="/admin/collections"
+            className="text-text-secondary hover:text-text-primary -ml-1 p-1"
+          >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -159,18 +162,20 @@ export default function SignupsPage() {
               />
             </svg>
           </Link>
-          <h1 className="text-text-primary text-xl font-bold sm:text-2xl">
+          <h1 className="text-text-primary truncate text-lg font-bold sm:text-xl lg:text-2xl">
             Signups: {collection?.title}
           </h1>
         </div>
 
         {collection?.description && (
-          <p className="text-text-secondary mb-2 text-sm sm:text-base">{collection.description}</p>
+          <p className="text-text-secondary mb-2 text-xs sm:text-sm lg:text-base">
+            {collection.description}
+          </p>
         )}
 
         {/* Event Details */}
         {(eventDate || eventLocation) && (
-          <div className="text-text-secondary flex flex-wrap gap-4 text-sm">
+          <div className="text-text-secondary flex flex-wrap gap-2 text-xs sm:gap-4 sm:text-sm">
             {eventDate && (
               <span className="flex items-center gap-1">
                 <span>📅</span>
@@ -196,7 +201,7 @@ export default function SignupsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4 text-center dark:border-gray-700 dark:bg-gray-800">
           <div className="text-text-primary text-2xl font-bold">{summary.total}</div>
           <div className="text-text-secondary text-sm">Total</div>
@@ -220,7 +225,10 @@ export default function SignupsPage() {
       {/* Filter Tabs */}
       <div className="mb-6">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav
+            className="-mb-px flex space-x-2 overflow-x-auto scroll-smooth sm:space-x-4 lg:space-x-8"
+            aria-label="Tabs"
+          >
             {[
               { key: 'all', label: 'All', count: summary.total },
               { key: 'yes', label: 'Yes', count: summary.yes },
@@ -230,14 +238,14 @@ export default function SignupsPage() {
               <button
                 key={tab.key}
                 onClick={() => setFilterStatus(tab.key as SignupStatus | 'all')}
-                className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
+                className={`flex min-h-[44px] items-center border-b-2 px-2 py-2 text-xs font-medium whitespace-nowrap select-none sm:text-sm ${
                   filterStatus === tab.key
                     ? 'border-penn-red text-penn-red'
                     : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
                 }`}
               >
                 {tab.label}
-                <span className="text-text-muted ml-2 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium dark:bg-gray-800">
+                <span className="text-text-muted ml-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium sm:ml-2 sm:px-2.5 sm:text-xs dark:bg-gray-800">
                   {tab.count}
                 </span>
               </button>
@@ -247,12 +255,12 @@ export default function SignupsPage() {
       </div>
 
       {/* Copy Signup Link */}
-      <div className="mb-6">
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-          <div className="flex items-center justify-between">
+      <div className="mb-4 sm:mb-6">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4 dark:border-blue-800 dark:bg-blue-900/20">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-medium text-blue-900 dark:text-blue-100">Share Signup Link</h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-xs text-blue-700 sm:text-sm dark:text-blue-300">
                 Send this link to players so they can sign up
               </p>
             </div>
@@ -263,7 +271,7 @@ export default function SignupsPage() {
                 navigator.clipboard.writeText(signupUrl);
                 // You could add a toast notification here
               }}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
             >
               Copy Link
             </button>
@@ -353,17 +361,19 @@ export default function SignupsPage() {
             </table>
           </div>
 
-          {/* Mobile Card View */}
-          <div className="space-y-3 sm:hidden">
+          {/* Mobile Card View - Enhanced */}
+          <div className="space-y-2 sm:hidden sm:space-y-3">
             {filteredSignups.map((signup: PlayerSignup) => (
               <div
                 key={signup.id}
-                className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+                className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-700 dark:bg-gray-800"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-text-primary font-medium">{signup.player_name}</h3>
+                  <h3 className="text-text-primary mr-2 truncate font-medium">
+                    {signup.player_name}
+                  </h3>
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                    className={`inline-flex flex-shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
                       signup.status === 'yes'
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                         : signup.status === 'maybe'
@@ -380,7 +390,7 @@ export default function SignupsPage() {
                 )}
 
                 {signup.notes && (
-                  <p className="text-text-secondary mb-2 text-sm">💬 {signup.notes}</p>
+                  <p className="text-text-secondary mb-2 line-clamp-2 text-sm">💬 {signup.notes}</p>
                 )}
 
                 <div className="text-text-muted flex items-center justify-between text-xs">
@@ -395,7 +405,7 @@ export default function SignupsPage() {
                   <button
                     onClick={() => handleDeleteSignup(signup.id, signup.player_name)}
                     disabled={isDeleting === signup.id}
-                    className="text-red-600 hover:text-red-900 disabled:opacity-50 dark:text-red-400"
+                    className="font-medium text-red-600 hover:text-red-900 disabled:opacity-50 dark:text-red-400"
                   >
                     {isDeleting === signup.id ? 'Deleting...' : 'Delete'}
                   </button>

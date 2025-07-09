@@ -106,43 +106,46 @@ export default function CollectionsPage() {
       {/* Filter Tabs - Mobile Responsive */}
       <div className="mb-6">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav
+            className="-mb-px flex space-x-2 overflow-x-auto scroll-smooth sm:space-x-4 lg:space-x-8"
+            aria-label="Tabs"
+          >
             <button
               onClick={() => setFilterType('all')}
-              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`flex min-h-[44px] items-center border-b-2 px-2 py-2 text-xs font-medium whitespace-nowrap select-none sm:text-sm ${
                 filterType === 'all'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
               }`}
             >
               All Collections
-              <span className="text-text-muted ml-2 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium dark:bg-gray-800">
+              <span className="text-text-muted ml-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium sm:ml-2 sm:px-2.5 sm:text-xs dark:bg-gray-800">
                 {collections.length}
               </span>
             </button>
             <button
               onClick={() => setFilterType('payment')}
-              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`flex min-h-[44px] items-center border-b-2 px-2 py-2 text-xs font-medium whitespace-nowrap select-none sm:text-sm ${
                 filterType === 'payment'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
               }`}
             >
               💰 Payments
-              <span className="text-text-muted ml-2 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium dark:bg-gray-800">
+              <span className="text-text-muted ml-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium sm:ml-2 sm:px-2.5 sm:text-xs dark:bg-gray-800">
                 {paymentCount}
               </span>
             </button>
             <button
               onClick={() => setFilterType('signup')}
-              className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`flex min-h-[44px] items-center border-b-2 px-2 py-2 text-xs font-medium whitespace-nowrap select-none sm:text-sm ${
                 filterType === 'signup'
                   ? 'border-penn-red text-penn-red'
                   : 'text-text-secondary hover:text-text-primary border-transparent hover:border-gray-300'
               }`}
             >
               📝 Signups
-              <span className="text-text-muted ml-2 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium dark:bg-gray-800">
+              <span className="text-text-muted ml-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium sm:ml-2 sm:px-2.5 sm:text-xs dark:bg-gray-800">
                 {signupCount}
               </span>
             </button>

@@ -351,6 +351,16 @@ export function CollectionCard({ collection, userId }: CollectionCardProps) {
           </Link>
         )}
 
+        {/* NEW: View Payments Button */}
+        {!isSignup && payments.length > 0 && (
+          <Link
+            href={`/admin/collections/${collection.id}/payments`}
+            className="flex flex-1 items-center justify-center gap-2 rounded-md bg-blue-100 px-4 py-3 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 sm:py-2 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+          >
+            View Payments
+          </Link>
+        )}
+
         <button
           onClick={handleDelete}
           disabled={isLoading}

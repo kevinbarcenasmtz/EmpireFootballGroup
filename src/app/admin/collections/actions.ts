@@ -4,13 +4,14 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 import { createCollectionSchema, generateSlug } from '@/lib/validations/collections';
-import { PaymentCollection, PlayerSignup } from '@/types/database';
+import { PaymentCollection, PlayerSignup, Payment } from '@/types/database';
 
 interface ActionResult<T = unknown> {
   success?: boolean;
   error?: string;
   collection?: T;
   signups?: T;
+  payments?: T;
 }
 
 // UPDATED: Enhanced createCollection to handle signup collections
@@ -235,5 +236,50 @@ export async function deleteCollection(id: string): Promise<ActionResult> {
   } catch (error) {
     console.error('Delete collection error:', error);
     return { error: 'Failed to delete collection' };
+  }
+}
+
+// Get payments for a specific collection (admin only)
+export async function getPayments(collectionId: string): Promise<ActionResult<Payment[]>> {
+  try {
+    const headersList = await headers();
+    const userId = headersList.get('x-user-id');
+
+    if (!userId) {
+      return { error: 'Authentication required' };
+    }
+
+    const supabase = await createClient();
+
+    // Verify user owns this collection and get completed payments
+    const { data, error } = await supabase
+      .from('payments')
+      .select(
+        `
+        *,
+        payment_collections!inner(admin_id)
+      `
+      )
+      .eq('collection_id', collectionId)
+      .eq('payment_collections.admin_id', userId)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Get payments error:', error);
+      return { error: 'Failed to fetch payments' };
+    }
+
+    // Extract just the payment data (remove the joined collection data)
+    const payments = data.map(item => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { payment_collections, ...payment } = item;
+      return payment as Payment;
+    });
+
+    return { success: true, payments: payments };
+  } catch (error) {
+    console.error('Get payments error:', error);
+    return { error: 'Failed to fetch payments' };
   }
 }

@@ -20,12 +20,20 @@ export const createCollectionSchema = z.object({
     }),
   // NEW: Collection type validation
   collection_type: z.enum(['payment', 'signup']).default('payment'),
-  // NEW: Event details for signup collections (stored in metadata)
-  event_date: z.string().optional(),
-  location: z.string().optional(),
+  // FIXED: Event details - handle null values
+  event_date: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(val => (val === null || val === '') ? undefined : val),
+  location: z
+    .string()
+    .nullable()
+    .optional()
+    .transform(val => (val === null || val === '') ? undefined : val),
 });
 
-// NEW: Signup submission validation
+// Signup submission validation
 export const submitSignupSchema = z.object({
   player_name: z
     .string()

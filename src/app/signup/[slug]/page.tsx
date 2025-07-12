@@ -296,7 +296,7 @@ export default function SignupPage() {
                 htmlFor="player_phone"
                 className="text-text-primary mb-2 block text-sm font-medium"
               >
-                Phone Number (optional)
+                Phone Number (Required)
               </label>
               <input
                 id="player_phone"
@@ -349,7 +349,7 @@ export default function SignupPage() {
             {/* Notes */}
             <div>
               <label htmlFor="notes" className="text-text-primary mb-2 block text-sm font-medium">
-                Additional Notes (optional)
+                Additional Notes (optional) Here you could put your position!
               </label>
               <textarea
                 id="notes"

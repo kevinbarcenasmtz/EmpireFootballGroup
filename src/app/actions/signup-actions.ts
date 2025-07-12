@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/utils/supabase/server';
+import { createServiceClient } from '@/utils/supabase/service'; 
 import { submitSignupSchema } from '@/lib/validations/collections';
 import { PlayerSignup } from '@/types/database';
-
 interface SignupActionResult {
   success?: boolean;
   error?: string;
@@ -28,9 +28,13 @@ export async function submitSignup(
 
     const validatedData = submitSignupSchema.parse(rawData);
 
+    // Create regular client for reading collection (public access)
     const supabase = await createClient();
+    
+    // Create service client for database writes (bypasses RLS)
+    const serviceSupabase = createServiceClient();
 
-    // Get collection by slug
+    // Get collection by slug using regular client (public read access)
     const { data: collection, error: collectionError } = await supabase
       .from('payment_collections')
       .select('id, title, is_active, collection_type')
@@ -46,8 +50,8 @@ export async function submitSignup(
       return { error: 'This is not a signup collection' };
     }
 
-    // Check for existing signup by name and phone
-    const { data: existingSignups, error: checkError } = await supabase
+    // Check for existing signup by name and phone using SERVICE CLIENT
+    const { data: existingSignups, error: checkError } = await serviceSupabase
       .from('player_signups')
       .select('*')
       .eq('collection_id', collection.id)
@@ -59,11 +63,11 @@ export async function submitSignup(
       return { error: 'Failed to check existing signup' };
     }
 
-    // If existing signup found, update it
+    // If existing signup found, update it using SERVICE CLIENT
     if (existingSignups && existingSignups.length > 0) {
       const existingSignup = existingSignups[0];
 
-      const { data: updatedSignup, error: updateError } = await supabase
+      const { data: updatedSignup, error: updateError } = await serviceSupabase
         .from('player_signups')
         .update({
           status: validatedData.status,
@@ -83,8 +87,8 @@ export async function submitSignup(
       return { success: true, signup: updatedSignup, existingSignup: existingSignup };
     }
 
-    // Create new signup
-    const { data: newSignup, error: insertError } = await supabase
+    // Create new signup using SERVICE CLIENT
+    const { data: newSignup, error: insertError } = await serviceSupabase
       .from('player_signups')
       .insert({
         collection_id: collection.id,

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/utils/supabase/server';
-import { createServiceClient } from '@/utils/supabase/service'; 
+import { createServiceClient } from '@/utils/supabase/service';
 import { submitSignupSchema } from '@/lib/validations/collections';
 import { PlayerSignup } from '@/types/database';
 interface SignupActionResult {
@@ -30,7 +30,7 @@ export async function submitSignup(
 
     // Create regular client for reading collection (public access)
     const supabase = await createClient();
-    
+
     // Create service client for database writes (bypasses RLS)
     const serviceSupabase = createServiceClient();
 

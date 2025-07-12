@@ -10,6 +10,7 @@ import { sendPaymentEmails, getCollectionAdminEmail } from './email-actions';
 import { Client, Environment } from 'square/legacy';
 import { rateLimiters } from '@/lib/rate-limit';
 import { headers } from 'next/headers';
+import crypto from 'crypto';
 
 export async function processPayment(formData: FormData) {
   try {
@@ -143,9 +144,19 @@ export async function processPayment(formData: FormData) {
 
     // STEP 1: Generate deterministic idempotency key
     const timestamp = Math.floor(Date.now() / 60000) * 60000; // Round to nearest minute
-    const idempotencyKey = `${collectionSlug}-${payerEmail.toLowerCase()}-${amount}-${timestamp}-${sourceId.substring(0, 8)}`;
 
-    console.log('Generated idempotency key:', idempotencyKey);
+    // Generate a hash of all the components to ensure uniqueness while keeping it short
+    const fullKey = `${collectionSlug}-${payerEmail.toLowerCase()}-${amount}-${timestamp}-${sourceId.substring(0, 8)}`;
+    const hash = crypto.createHash('md5').update(fullKey).digest('hex');
+    const idempotencyKey = hash.substring(0, 32); // 32 chars is well under Square's 45 char limit
+
+    console.log('Generated idempotency key:', idempotencyKey, `(length: ${idempotencyKey.length})`);
+
+    // Safety check
+    if (idempotencyKey.length > 45) {
+      console.error(`Idempotency key too long: ${idempotencyKey.length} chars`);
+      return { error: 'Payment configuration error. Please contact support.' };
+    }
 
     // STEP 2: Check for existing payment with this idempotency key
     const { data: existingIdempotency } = await serviceSupabase

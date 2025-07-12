@@ -25,12 +25,12 @@ export const createCollectionSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .transform(val => (val === null || val === '') ? undefined : val),
+    .transform(val => (val === null || val === '' ? undefined : val)),
   location: z
     .string()
     .nullable()
     .optional()
-    .transform(val => (val === null || val === '') ? undefined : val),
+    .transform(val => (val === null || val === '' ? undefined : val)),
 });
 
 // Signup submission validation

@@ -15,11 +15,10 @@
   // Environment Variables - Non-sensitive configuration
   "vars": {
     "SQUARE_ENVIRONMENT": "production",
-    "NEXT_PUBLIC_APP_URL": "https://www.empirefootballgroupatx.com/",
+    "NEXT_PUBLIC_APP_URL": "https://empirefootballgroup.kevinbarcenas2022.workers.dev/",
     "ADMIN_EMAIL": "empirefootballgroupllc@gmail.com",
     "FROM_EMAIL": "empirefootballwebsite@gmail.com",
-  },
-
+  }
   // Note: Sensitive values are stored as Secrets in Cloudflare Workers Dashboard:
   //
   // REQUIRED SECRETS (Add these via Cloudflare Dashboard → Settings → Variables → Secrets):

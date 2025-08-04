@@ -27,6 +27,7 @@ const EmblaCarousel: React.FC<PropType> = props => {
                   src={image}
                   alt={`Empire Football Group image ${index + 1}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
                   style={{ objectFit: 'cover' }}
                   className="rounded-lg"
                   priority={index === 0}

@@ -15,7 +15,7 @@ import invictusteam from '../../images/carousel/invictusteam.jpg';
 
 import imperiumlogo from '../../images/logos/imperiumfclogo.png';
 import invictuslogo from '../../images/logos/invictuslogo.png';
-import olympuslogo from '../../images/logos/olympusfc.png';
+import imperiumSevens from '../../images/logos/imperiumSevens.png';
 import sponsor1 from '../../images/logos/bluealberthlogo.png';
 import sponsor2 from '../../images/logos/albert_logo.png';
 
@@ -108,7 +108,7 @@ export default function AboutUs() {
                   alt="Imperium FC team logo"
                   width={200}
                   height={200}
-                  className="object-contain transition-transform duration-300 hover:scale-120"
+                  className="logo-container object-contain transition-transform duration-300 hover:scale-110"
                   priority
                 />
               </div>
@@ -168,7 +168,7 @@ export default function AboutUs() {
                   alt="Invictus FC team logo"
                   width={200}
                   height={200}
-                  className="object-contain transition-transform duration-300 hover:scale-110"
+                  className="logo-container object-contain transition-transform duration-300 hover:scale-110"
                   priority
                 />
               </div>
@@ -213,44 +213,44 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Olympus FC Section */}
+      {/* Imperium Sevens Section */}
       <section
-        aria-labelledby="olympus-heading"
-        className="from-lapis-lazuli mb-16 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md"
+        aria-labelledby="imperium-sevens-heading"
+        className="from-imperium-gold mb-16 rounded-lg bg-gradient-to-r to-transparent p-8 shadow-md"
       >
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
           <div className="flex justify-center md:w-1/3">
             <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-white p-4 shadow-lg">
               <Image
-                src={olympuslogo}
-                alt="Olympus FC team logo"
+                src={imperiumSevens}
+                alt="Imperium Sevens team logo"
                 width={200}
                 height={200}
-                className="object-contain transition-transform duration-300 hover:scale-140"
+                className="logo-container object-contain transition-transform duration-300 hover:scale-110"
                 priority
               />
             </div>
           </div>
           <div className="md:w-2/3">
             <h2
-              id="olympus-heading"
+              id="imperium-sevens-heading"
               className="text-text-primary mb-4 text-center text-4xl font-extrabold md:text-left"
             >
-              Olympus FC
+              Imperium Sevens
             </h2>
             <p className="text-text-primary mb-6 text-lg">
-              Olympus FC represents our entry into the Bat City Soccer League, expanding our
+              Imperium Sevens represents our entry into the Bat City Soccer League, expanding our
               competitive reach beyond traditional AMSA play. This team provides players with a
               different style of football experience while maintaining our core values of
               affordability and community-focused competition.
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-lapis-lazuli mb-2 font-bold">Competition Level</h4>
+                <h4 className="text-imperium-gold mb-2 font-bold">Competition Level</h4>
                 <p className="text-text-primary">Bat City Soccer League</p>
               </div>
               <div className="bg-background rounded-lg border border-gray-200 p-4 shadow dark:border-gray-700">
-                <h4 className="text-lapis-lazuli mb-2 font-bold">League Focus</h4>
+                <h4 className="text-imperium-gold mb-2 font-bold">League Focus</h4>
                 <p className="text-text-primary">
                   Alternative competitive format with community emphasis.
                 </p>
@@ -279,14 +279,14 @@ export default function AboutUs() {
             alt="Sponsor 1 logo"
             width={150}
             height={80}
-            className="object-contain"
+            className="sponsor-logo object-contain"
           />
           <Image
             src={sponsor2}
             alt="Sponsor 2 logo"
             width={150}
             height={80}
-            className="object-contain"
+            className="sponsor-logo object-contain"
           />
         </div>
       </section>

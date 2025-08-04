@@ -36,12 +36,12 @@
   --color-night: #151510;
   --color-drab-brown: #55461d;
 
-  /* Olympus FC */
-  --color-olympus-black: #03070cff;
-  --color-true-blue: #386da9ff;
-  --color-yinmn-blue: #27558fff;
-  --color-lapis-lazuli: #345c8eff;
-  --color-goldenrod: #d69c27ff;
+  /* Imperium Sevens Theme - Updated */
+  --color-imperium-gold: #d4af37; /* Primary gold from logo */
+  --color-imperium-bronze: #cd7f32; /* Secondary bronze tone */
+  --color-imperium-red: #dc143c; /* Red accent from helmet plume */
+  --color-imperium-black: #1c1c1c; /* Deep black */
+  --color-imperium-white: #f5f5f5; /* Off-white background */
 
   /* Responsive Text Colors - reference existing CSS variables */
   --color-text-primary: var(--text-primary);
@@ -427,5 +427,31 @@ body {
 
   .embla-players__dot:after {
     box-shadow: inset 0 0 0 0.2rem rgb(75 85 99);
+  }
+  /* .logo-image {
+    width: auto;
+    height: auto;
+  } */
+  .logo-container {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-container img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  .sponsor-logo {
+    width: auto !important;
+    height: auto !important;
+    max-width: 150px !important;
+    max-height: 80px !important;
   }
 }

@@ -17,10 +17,7 @@ export default function PaymentsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Use real-time payments hook
-  const {
-    payments: realtimePayments,
-    isConnected,
-  } = useRealtimePayments({
+  const { payments: realtimePayments, isConnected } = useRealtimePayments({
     userId: collection?.admin_id,
     collectionId,
     enabled: !!collection?.admin_id,
@@ -165,9 +162,7 @@ export default function PaymentsPage() {
           {/* Connection Status */}
           <div className="flex items-center gap-2">
             <div
-              className={`h-2 w-2 rounded-full ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
-              }`}
+              className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
             />
             <span className="text-text-secondary text-xs">
               {isConnected ? 'Connected' : 'Disconnected'}
@@ -181,9 +176,7 @@ export default function PaymentsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary text-sm font-medium">Total Revenue</p>
-                <p className="text-text-primary text-2xl font-bold">
-                  ${totalRevenue.toFixed(2)}
-                </p>
+                <p className="text-text-primary text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
               </div>
               <div className="text-green-500">
                 <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
@@ -220,34 +213,34 @@ export default function PaymentsPage() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6 dark:text-gray-400">
+                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-400">
                     Payer
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6 dark:text-gray-400">
+                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-400">
                     Amount
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6 dark:text-gray-400">
+                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-400">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6 dark:text-gray-400">
+                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-400">
                     Email
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                {payments.map((payment) => (
+                {payments.map(payment => (
                   <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="whitespace-nowrap px-4 py-4 sm:px-6">
+                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
                       <div className="text-text-primary text-sm font-medium">
                         {payment.payer_name || 'Anonymous'}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-4 sm:px-6">
+                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
                       <div className="text-sm font-bold text-green-600">
                         ${payment.amount.toFixed(2)}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-4 sm:px-6">
+                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
                       <div className="text-text-secondary text-sm">
                         {new Date(payment.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -258,7 +251,7 @@ export default function PaymentsPage() {
                         })}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-4 sm:px-6">
+                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
                       <div className="text-text-secondary text-sm">
                         {payment.payer_email || 'Not provided'}
                       </div>

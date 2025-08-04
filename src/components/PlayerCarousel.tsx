@@ -56,9 +56,10 @@ const PlayerCarousel: React.FC<PropType> = props => {
                       player.name ? `${player.name} - ${player.position}` : `Player ${index + 1}`
                     }
                     fill
+                    sizes="(max-width: 750px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{ objectFit: 'cover' }}
                     className="rounded-lg"
-                  />
+                  />{' '}
                   {player.number && (
                     <div className={`player-card__number bg-${teamColor}`}>#{player.number}</div>
                   )}

@@ -6,7 +6,7 @@ import { EmblaOptionsType } from 'embla-carousel';
 import { CreativeCredits } from '@/components/CreativeCredits';
 
 // Import player data
-import { IMPERIUM_PLAYERS, INVICTUS_PLAYERS } from '@/data/PlayerData';
+import { IMPERIUM_PLAYERS, IMPERIUM_SEVENS_PLAYERS, INVICTUS_PLAYERS } from '@/data/PlayerData';
 
 // Import your carousel images
 import empfballgroupteam from '../../images/carousel/empfootballgroupteam.jpg';
@@ -259,6 +259,16 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+
+      {/* Player Showcase - Now outside the banner */}
+      <div className="mt-8">
+        <h3 className="text-text-primary mb-6 text-center text-2xl font-bold">Meet Our Players</h3>
+        <PlayerCarousel
+          players={IMPERIUM_SEVENS_PLAYERS}
+          options={PLAYER_OPTIONS}
+          teamColor="dark-goldenrod"
+        />
+      </div>
 
       {/* Creative Credits - Add before sponsors */}
       <CreativeCredits />

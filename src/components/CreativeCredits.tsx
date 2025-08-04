@@ -3,7 +3,7 @@ import { Container } from './Container';
 
 export const CreativeCredits = () => {
   return (
-    <section className="bg-contrast mb-4 py-6">
+    <section className="bg-contrast mb-4 py-6 mt-8">
       <Container>
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-text-primary mb-6 text-3xl font-bold">Behind the Lens</h2>

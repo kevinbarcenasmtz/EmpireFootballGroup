@@ -37,6 +37,14 @@ import invictusPlayer12 from '../images/playercards/nate-story.png';
 import invictusPlayer13 from '../images/playercards/ricardo-story.png';
 import invictusPlayer14 from '../images/playercards/vinicius-story.png';
 
+import sevensPlayer1 from '../images/playercards/sevens/IMG_4755.jpg';
+import sevensPlayer2 from '../images/playercards/sevens/IMG_4763.jpg';
+import sevensPlayer3 from '../images/playercards/sevens/IMG_4785.jpg';
+import sevensPlayer4 from '../images/playercards/sevens/IMG_4790.jpg';
+import sevensPlayer5 from '../images/playercards/sevens/IMG_8612.jpg';
+import sevensPlayer6 from '../images/playercards/sevens/IMG_8622.jpg';
+import sevensPlayer7 from '../images/playercards/sevens/_DSC4647.jpg';
+
 export const IMPERIUM_PLAYERS: Player[] = [
   { name: '', position: '', image: imperiumPlayer1 },
   { name: '', position: '', image: imperiumPlayer2 },
@@ -73,4 +81,14 @@ export const INVICTUS_PLAYERS: Player[] = [
   { name: '', position: '', image: invictusPlayer12 },
   { name: '', position: '', image: invictusPlayer13 },
   { name: '', position: '', image: invictusPlayer14 },
+];
+
+export const IMPERIUM_SEVENS_PLAYERS: Player[] = [
+  { name: '', position: '', image: sevensPlayer1 },
+  { name: '', position: '', image: sevensPlayer2 },
+  { name: '', position: '', image: sevensPlayer3 },
+  { name: '', position: '', image: sevensPlayer4 },
+  { name: '', position: '', image: sevensPlayer5 },
+  { name: '', position: '', image: sevensPlayer6 },
+  { name: '', position: '', image: sevensPlayer7 },
 ];

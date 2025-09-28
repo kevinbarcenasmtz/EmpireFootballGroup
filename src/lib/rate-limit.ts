@@ -61,7 +61,7 @@ export function rateLimit(options: Options = {}) {
 export const rateLimiters = {
   // Strict limit for payment processing
   payment: rateLimit({
-    interval: 60 * 1000, // 1 minute window
+    interval: 30 * 1000, 
     uniqueTokenPerInterval: 10000,
   }),
 
@@ -73,7 +73,7 @@ export const rateLimiters = {
 
   // Very strict for authentication attempts
   auth: rateLimit({
-    interval: 15 * 60 * 1000, // 15 minute window
+    interval: 5 * 60 * 1000,
     uniqueTokenPerInterval: 1000,
   }),
 };

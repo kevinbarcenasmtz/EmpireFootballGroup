@@ -32,7 +32,7 @@ export async function processPayment(formData: FormData) {
     // Apply rate limiting by IP address
     const ipRateLimit = await rateLimiters.payment.check(
       {} as Request, // We don't need the request object for IP-based limiting
-      10, // 10 payment attempts per minute per IP
+      20, // 10 payment attempts per minute per IP
       `payment_ip_${ip}`
     );
 
@@ -48,7 +48,7 @@ export async function processPayment(formData: FormData) {
     if (payerEmail) {
       const emailRateLimit = await rateLimiters.payment.check(
         {} as Request,
-        5, // 5 payment attempts per minute per email
+        10, // 5 payment attempts per minute per email
         `payment_email_${payerEmail.toLowerCase()}`
       );
 
@@ -65,7 +65,7 @@ export async function processPayment(formData: FormData) {
     const amountKey = `payment_amount_${ip}_${amount}`;
     const amountRateLimit = await rateLimiters.payment.check(
       {} as Request,
-      3, // 3 attempts with same amount per minute
+      10, // 3 attempts with same amount per minute
       amountKey
     );
 
